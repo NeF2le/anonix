@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS mapping.mappings;
+DROP SCHEMA IF EXISTS mapping;
+
+DROP TABLE IF EXISTS users.users;
+DROP SCHEMA IF EXISTS users;

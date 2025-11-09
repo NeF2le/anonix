@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>anonix admin panel</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="main-container">
+        <div class="toolbar">
+            <button id="logoutBtn" class="btn btn--ghost">Выйти</button>
+            <button id="tokenizeBtn" class="btn btn--primary">Зашифровать</button>
+            <button id="detokenizeBtn" class="btn btn--primary">Расшифровать</button>
+            <button id="refreshMappingListBtn" class="btn btn--primary">Обновить таблицу</button>
+        </div>
+        <div id="mappingList" class="ag-theme-quartz"></div>
+    </div>
+
+    <div class="overlay" id="tokenizeOverlay">
+        <div class="modal" role="dialog" tabindex="-1">
+            <div class="modal-content-wrapper">
+                <div class="modal__header">
+                    <h3>Шифрование</h3>
+                    <button class="btn--close">✕</button>
+                </div>
+
+                <div class="modal__body">
+                    <form id="tokenizeForm" class="modal-form">
+                        <div class="input-group">
+                            <label for="plaintextInput">Текст для шифрования</label>
+                            <input id="plaintextInput" name="plaintext" placeholder="Введите текст" type="text" autocomplete="off" required />
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ttlSelect">Срок жизни (TTL)</label>
+                            <select id="ttlSelect" name="ttl_select">
+                                <option value="3600">1 час</option>
+                                <option value="21600">6 часов</option>
+                                <option value="86400" selected>24 часа</option>
+                                <option value="604800">7 дней</option>
+                                <option value="0">Не истекает</option>
+                                <option value="custom">Свое</option>
+                            </select>
+
+                            <input id="ttlCustom" name="ttl_custom" type="number" min="1" placeholder="в секундах" inputmode="numeric"
+                                   style="display: none;">
+                        </div>
+                    </form>
+                    <div id="tokenizeMessage" class="modal__message" role="status"></div>
+                </div>
+
+                <div class="modal__actions">
+                    <button class="btn--close" type="button">Отмена</button>
+                    <button class="btn btn--primary" type="submit" form="tokenizeForm">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="detokenizeOverlay">
+        <div class="modal" role="dialog" tabindex="-1">
+            <div class="modal-content-wrapper">
+                <div class="modal__header">
+                    <h3>Дешифрование</h3>
+                    <button class="btn--close">✕</button>
+                </div>
+
+                <div class="modal__body">
+                    <form id="detokenizeForm" class="modal-form">
+                        <div class="input-group">
+                            <label for="tokenInput">Токен</label>
+                            <input id="tokenInput" name="token" placeholder="Введите токен" type="text" autocomplete="off" required />
+                        </div>
+                    </form>
+                    <div id="detokenizeMessage" class="modal__message" role="status"></div>
+                </div>
+
+                <div class="modal__actions">
+                    <button class="btn--close" type="button">Отмена</button>
+                    <button class="btn btn--primary" type="submit" form="detokenizeForm">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+</body>
+<script src="scripts/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+<script src="scripts/objects/toast.js"></script>
+<script src="scripts/objects/mappings_grid.js"></script>
+<script src="scripts/objects/modal.js"></script>
+<script src="scripts/helpers/converters.js"></script>
+<script src="scripts/helpers/auth_fetch.js"></script>
+<script src="scripts/api/tokenizer.js"></script>
+<script src="scripts/api/mappings.js"></script>
+<script src="scripts/admin.js"></script>
+</html>

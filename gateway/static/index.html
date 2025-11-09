@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="main-container">
+        <div class="center-container">
+            <div class="content">
+                <button id="signUpBtn" class="btn btn--primary">Регистрация</button>
+                <button id="signInBtn" class="btn btn--primary">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="signUpOverlay">
+        <div class="modal" role="dialog" tabindex="-1">
+            <div class="modal-content-wrapper">
+                <div class="modal__header">
+                    <h3>Регистрация</h3>
+                    <button class="btn--close">✕</button>
+                </div>
+
+                <div class="modal__body">
+                    <form id="registerForm" class="modal-form">
+                        <div class="input-group">
+                            <label for="regLoginInput">Логин</label>
+                            <input id="regLoginInput" name="login" placeholder="Введите логин" type="text" autocomplete="off" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="regPasswordInput">Пароль</label>
+                            <input id="regPasswordInput" name="password" placeholder="Введите пароль" type="password" autocomplete="off" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="regPasswordAgainInput">Повторите пароль</label>
+                            <input id="regPasswordAgainInput" name="passwordAgain" placeholder="Введите пароль" type="password" autocomplete="off" required />
+                        </div>
+                    </form>
+                    <div id="registerMessage" class="modal__message" role="status"></div>
+                </div>
+
+                <div class="modal__actions">
+                    <button class="btn--close" type="button">Отмена</button>
+                    <button class="btn btn--primary" type="submit" form="registerForm">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="signInOverlay">
+        <div class="modal" role="dialog" tabindex="-1">
+            <div class="modal-content-wrapper">
+                <div class="modal__header">
+                    <h3>Вход в аккаунт</h3>
+                    <button class="btn--close">✕</button>
+                </div>
+
+                <div class="modal__body">
+                    <form id="loginForm" class="modal-form">
+                        <div class="input-group">
+                            <label for="loginInput">Логин</label>
+                            <input id="loginInput" name="login" placeholder="Введите логин" type="text" autocomplete="off" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="passwordInput">Пароль</label>
+                            <input id="passwordInput" name="password" placeholder="Введите пароль" type="password" autocomplete="off" required />
+                        </div>
+                    </form>
+                    <div id="loginMessage" class="modal__message" role="status"></div>
+                </div>
+
+                <div class="modal__actions">
+                    <button class="btn--close" type="button">Отмена</button>
+                    <button class="btn btn--primary" type="submit" form="loginForm">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+</body>
+<script src="scripts/config.js"></script>
+<script src="scripts/objects/toast.js"></script>
+<script src="scripts/objects/modal.js"></script>
+<script src="scripts/helpers/validator.js"></script>
+<script src="scripts/api/auth.js"></script>
+<script src="scripts/index.js"></script>
+</html>

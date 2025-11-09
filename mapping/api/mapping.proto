@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package mapping;
+
+option go_package = "common/gen/mapping";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+service Mapping {
+  rpc CreateMapping (CreateMappingRequest) returns (CreateMappingResponse);
+  rpc DeleteMapping (DeleteMappingRequest) returns (DeleteMappingResponse);
+  rpc UpdateMapping (UpdateMappingRequest) returns (UpdateMappingResponse);
+  rpc GetMapping (GetMappingRequest) returns (GetMappingResponse);
+  rpc GetMappingList (GetMappingListRequest) returns (GetMappingListResponse);
+}
+
+message MappingModel {
+  string id = 1;
+  bytes cipher_text = 2;
+  bytes dek_wrapped = 3;
+  google.protobuf.Duration token_ttl = 4;
+  google.protobuf.Timestamp created_at = 5;
+  bool deterministic = 6;
+  bool reversible = 7;
+}
+
+message CreateMappingRequest {
+  bytes cipher_text = 1;
+  bytes dek_wrapped = 2;
+  google.protobuf.Duration token_ttl = 3;
+  bool deterministic = 4;
+  bool reversible = 5;
+}
+
+message CreateMappingResponse {
+  MappingModel mappingModel = 1;
+}
+
+message DeleteMappingRequest {
+  string id = 1;
+}
+
+message DeleteMappingResponse {}
+
+message UpdateMappingRequest {
+  string id = 1;
+  google.protobuf.Duration token_ttl = 2;
+}
+
+message UpdateMappingResponse {
+  MappingModel mappingModel = 1;
+}
+
+message GetMappingRequest {
+  string id = 1;
+}
+
+message GetMappingResponse {
+  MappingModel mappingModel = 1;
+}
+
+message GetMappingListRequest {}
+
+message GetMappingListResponse {
+  repeated MappingModel mappingModels = 1;
+}

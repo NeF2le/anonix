@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package tokenizer;
+
+option go_package = "common/gen/tokenizer";
+
+service Tokenizer {
+  rpc Tokenize (TokenizeRequest) returns (TokenizeResponse);
+  rpc Detokenize (DetokenizeRequest) returns (DetokenizeResponse);
+}
+
+message TokenizeRequest {
+  bytes plaintext = 1;
+  bool deterministic = 2;
+  bool reversible = 3;
+}
+
+message TokenizeResponse {
+  string token = 1;
+  bytes dek_wrapped = 2;
+  bytes cipher_text = 3;
+  bool deterministic = 4;
+  bool reversible = 5;
+}
+
+message DetokenizeRequest {
+  bytes dek_wrapped = 1;
+  bytes cipher_text = 2;
+  bool deterministic = 3;
+}
+
+message DetokenizeResponse {
+  bytes plaintext = 1;
+}
