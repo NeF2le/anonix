@@ -23,6 +23,17 @@ func NewAuthServiceHandler(authService *services.AuthService) *AuthServiceHandle
 	return &AuthServiceHandler{authService: authService}
 }
 
+// Register godoc
+// @Summary Зарегистрировать пользователя
+// @Description Возвращает ID пользователя
+// @Tags Auth
+// @Produce json
+// @Param body body schemas.RegisterSchema true "Данные для регистрации"
+// @Success 200 {object} schemas.RegisterRespSchema
+// @Failure 400 "invalid request body"
+// @Failure 409 "user with same login already exists"
+// @Failure 500 "failed to register user"
+// @Router /auth/signUp [post]
 func (a *AuthServiceHandler) Register(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -65,7 +76,7 @@ func (a *AuthServiceHandler) Register(ctx echo.Context) error {
 					slog.String("password", registerReq.Password),
 					slog.Int("roleId", int(registerReq.RoleId)),
 					logger.Err(err))
-				return helpers.BadRequest(ctx, "failed to register user")
+				return helpers.InternalServerError(ctx, "failed to register user")
 			}
 		}
 
@@ -77,9 +88,20 @@ func (a *AuthServiceHandler) Register(ctx echo.Context) error {
 		return helpers.InternalServerError(ctx, "unexpected error")
 	}
 
-	return ctx.JSON(http.StatusOK, registerResp)
+	return ctx.JSON(http.StatusOK, &schemas.RegisterRespSchema{UserId: registerResp.UserId})
 }
 
+// Login godoc
+// @Summary Авторизация
+// @Description Возвращает токен доступа и токен обновления
+// @Tags Auth
+// @Produce json
+// @Param body body schemas.LoginSchema true "Данные для авторизации"
+// @Success 200 {object} schemas.LoginRespSchema
+// @Failure 400 "invalid request body"
+// @Failure 401 "invalid credentials"
+// @Failure 500 "failed to log in"
+// @Router /auth/signIn [post]
 func (a *AuthServiceHandler) Login(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -112,13 +134,13 @@ func (a *AuthServiceHandler) Login(ctx echo.Context) error {
 					slog.String("login", loginReq.Login),
 					slog.String("password", loginReq.Password),
 					logger.Err(err))
-				return helpers.Unauthorized(ctx)
+				return helpers.InvalidCredentials(ctx)
 			default:
-				logger.GetLoggerFromCtx(reqCtx).Error(reqCtx, "failed to login",
+				logger.GetLoggerFromCtx(reqCtx).Error(reqCtx, "failed to log in",
 					slog.String("login", loginReq.Login),
 					slog.String("password", loginReq.Password),
 					logger.Err(err))
-				return helpers.BadRequest(ctx, "failed to login")
+				return helpers.InternalServerError(ctx, "failed to log in")
 			}
 		}
 
@@ -132,9 +154,24 @@ func (a *AuthServiceHandler) Login(ctx echo.Context) error {
 	helpers.SetAccessTokenCookie(ctx, loginResp.AccessToken, a.accessTokenMaxAge)
 	helpers.SetRefreshTokenCookie(ctx, loginResp.RefreshToken, a.refreshTokenMaxAge)
 
-	return ctx.JSON(http.StatusOK, loginResp)
+	return ctx.JSON(http.StatusOK, &schemas.LoginRespSchema{
+		AccessToken:  loginResp.AccessToken,
+		RefreshToken: loginResp.RefreshToken,
+		UserId:       loginResp.UserId,
+	})
 }
 
+// Refresh godoc
+// @Summary Обновить токены
+// @Description Принимает refresh token, возвращает новый access и refresh token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body schemas.RefreshSchema true "Refresh token"
+// @Success 200 {object} schemas.RefreshRespSchema
+// @Failure 400 "invalid request body / failed to refresh token"
+// @Failure 500 "unexpected error"
+// @Router /auth/refresh [post]
 func (a *AuthServiceHandler) Refresh(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -172,9 +209,23 @@ func (a *AuthServiceHandler) Refresh(ctx echo.Context) error {
 		return helpers.InternalServerError(ctx, "unexpected error")
 	}
 
-	return ctx.JSON(http.StatusOK, refreshResp)
+	return ctx.JSON(http.StatusOK, &schemas.RefreshRespSchema{
+		AccessToken:  refreshResp.AccessToken,
+		RefreshToken: refreshResp.RefreshToken,
+	})
 }
 
+// IsAdmin godoc
+// @Summary Проверить админство пользователя
+// @Description По переданному user_id возвращает, является ли пользователь администратором
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body schemas.IsAdminSchema true "ID пользователя"
+// @Success 200 {object} schemas.IsAdminRespSchema
+// @Failure 400 "invalid request body"
+// @Failure 500 "failed to check if user is admin"
+// @Router /auth/isAdmin [post]
 func (a *AuthServiceHandler) IsAdmin(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -212,5 +263,5 @@ func (a *AuthServiceHandler) IsAdmin(ctx echo.Context) error {
 		return helpers.InternalServerError(ctx, "unexpected error")
 	}
 
-	return ctx.JSON(http.StatusOK, isAdminResp)
+	return ctx.JSON(http.StatusOK, &schemas.IsAdminRespSchema{Result: isAdminResp.Result})
 }

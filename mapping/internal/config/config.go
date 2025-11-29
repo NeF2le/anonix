@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/NeF2le/anonix/common/postgres"
 	"github.com/NeF2le/anonix/common/redis"
+	"github.com/NeF2le/anonix/common/tls_helpers"
 	"github.com/ilyakaznacheev/cleanenv"
 	"time"
 )
@@ -16,9 +17,10 @@ type MappingConfig struct {
 }
 
 type Config struct {
-	Postgres postgres.Config `yaml:"postgres" env-prefix:"POSTGRES_"`
-	Redis    redis.Config    `yaml:"redis" env-prefix:"REDIS_"`
-	Mapping  MappingConfig   `yaml:"mapping" env-prefix:"MAPPING_"`
+	Postgres postgres.Config    `yaml:"postgres" env-prefix:"POSTGRES_"`
+	Redis    redis.Config       `yaml:"redis" env-prefix:"REDIS_"`
+	Mapping  MappingConfig      `yaml:"mapping" env-prefix:"MAPPING_"`
+	TLS      tls_helpers.Config `yaml:"tls" env-prefix:"TLS_"`
 
 	LogLevel       string `yaml:"log_level" env:"LOG_LEVEL" env-default:"debug"`
 	MigrationsPath string `yaml:"migrations_path" env:"MIGRATIONS_PATH" env-required:"true"`

@@ -47,7 +47,9 @@ func (m *MappingService) CreateMapping(ctx context.Context, mapping *domain.Mapp
 			logger.Err(err))
 	} else {
 		logger.GetLoggerFromCtx(ctx).Debug(ctx, "successfully saved mapping in cache",
-			slog.String("id", mapping.ID.String()))
+			slog.String("id", mapping.ID.String()),
+			slog.String("mapping created at", mapping.CreatedAt.Format("2006-01-02 15:04:05")),
+			slog.String("mapping ttl", mapping.TokenTtl.String()))
 	}
 
 	return result, nil
@@ -76,6 +78,16 @@ func (m *MappingService) GetMappingById(ctx context.Context, id uuid.UUID) (*dom
 	if err != nil {
 		logger.GetLoggerFromCtx(ctx).Warn(ctx, "failed to get mapping by id from cache", logger.Err(err))
 	}
+
+	if mapping != nil {
+		logger.GetLoggerFromCtx(ctx).Debug(ctx, "check mapping TTL",
+			slog.String("id", id.String()),
+			slog.String("now", time.Now().Format("2006-01-02 15:04:05")),
+			slog.String("created at", mapping.CreatedAt.Format("2006-01-02 15:04:05")),
+			slog.String("ttl", mapping.TokenTtl.String()),
+			slog.String("time to delete", mapping.CreatedAt.Add(mapping.TokenTtl).Format("2006-01-02 15:04:05")))
+	}
+
 	if mapping != nil && mapping.CreatedAt.Add(mapping.TokenTtl).Before(time.Now()) {
 		logger.GetLoggerFromCtx(ctx).Debug(ctx, "mapping expired",
 			slog.String("id", id.String()))

@@ -40,7 +40,7 @@ func (t *TokenizerService) Tokenize(ctx context.Context, pars *domain.TokenizePa
 	}(dek)
 
 	if deterministic && reversible {
-		wrappedDek, dek, err = t.vault.GenerateDEK(ctx, t.dekBitsLength, t.convergentKey, "test")
+		wrappedDek, dek, err = t.vault.GenerateDEK(ctx, t.dekBitsLength, t.convergentKey)
 		if err != nil {
 			logger.GetLoggerFromCtx(ctx).Error(ctx,
 				"failed to generate DEK",

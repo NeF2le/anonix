@@ -7,11 +7,14 @@ import (
 	"github.com/NeF2le/anonix/common/logger"
 	"github.com/NeF2le/anonix/common/postgres"
 	"github.com/NeF2le/anonix/common/redis"
+	"github.com/NeF2le/anonix/common/tls_helpers"
 	"github.com/NeF2le/anonix/mapping/internal/config"
 	"github.com/NeF2le/anonix/mapping/internal/ports/adapters/cache"
 	"github.com/NeF2le/anonix/mapping/internal/ports/adapters/storage"
 	"github.com/NeF2le/anonix/mapping/internal/service"
 	transportgrpc "github.com/NeF2le/anonix/mapping/internal/transport/grpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"log"
 	"log/slog"
 	"os/signal"
@@ -56,7 +59,26 @@ func main() {
 		cfg.Mapping.CacheTtl,
 	)
 	grpcHandler := transportgrpc.NewGRPCMappingHandler(mappingService)
-	grpcServer, err := transportgrpc.CreateGRPC(ctx, grpcHandler)
+
+	var grpcServer *grpc.Server
+	tlsCfg := cfg.TLS
+	if tlsCfg.Enabled {
+		if err = tls_helpers.Verification(cfg.Mapping.Host, &tlsCfg); err != nil {
+			panic(err)
+		}
+
+		var grpcTls credentials.TransportCredentials
+		grpcTls, err = tls_helpers.LoadServerTLSConfig(tlsCfg.ServerPublicKey, tlsCfg.ServerPrivateKey, tlsCfg.RootPublicKey)
+		if err != nil {
+			panic(err)
+		}
+		grpcServer, err = transportgrpc.CreateGRPCTLS(grpcHandler, grpcTls)
+		logger.GetLoggerFromCtx(ctx).Info(ctx, "tokenizer grpc server created with tls")
+	} else {
+		grpcServer, err = transportgrpc.CreateGRPC(grpcHandler)
+		logger.GetLoggerFromCtx(ctx).Info(ctx, "tokenizer grpc server created without tls")
+	}
+
 	if err != nil {
 		log.Fatal(fmt.Errorf("error creating grpc mapping server: %w", err))
 	}

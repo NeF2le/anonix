@@ -11,6 +11,9 @@ import (
 	"github.com/NeF2le/anonix/common/logger"
 	"github.com/NeF2le/anonix/common/postgres"
 	"github.com/NeF2le/anonix/common/redis"
+	"github.com/NeF2le/anonix/common/tls_helpers"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"log"
 )
 
@@ -48,8 +51,27 @@ func main() {
 		cfg.AccessExpiration,
 	)
 
-	grpcAuthHandler := transportgrpc.NewGRPCAuthHandler(authService)
-	grpcServer, err := transportgrpc.CreateGRPC(grpcAuthHandler)
+	grpcHandler := transportgrpc.NewGRPCAuthHandler(authService)
+
+	var grpcServer *grpc.Server
+	tlsCfg := cfg.TLS
+	if tlsCfg.Enabled {
+		if err = tls_helpers.Verification(cfg.AuthService.Host, &tlsCfg); err != nil {
+			panic(err)
+		}
+
+		var grpcTls credentials.TransportCredentials
+		grpcTls, err = tls_helpers.LoadServerTLSConfig(tlsCfg.ServerPublicKey, tlsCfg.ServerPrivateKey, tlsCfg.RootPublicKey)
+		if err != nil {
+			panic(err)
+		}
+		grpcServer, err = transportgrpc.CreateGRPCTLS(grpcHandler, grpcTls)
+		logger.GetLoggerFromCtx(ctx).Info(ctx, "tokenizer grpc server created with tls")
+	} else {
+		grpcServer, err = transportgrpc.CreateGRPC(grpcHandler)
+		logger.GetLoggerFromCtx(ctx).Info(ctx, "tokenizer grpc server created without tls")
+	}
+
 	if err != nil {
 		log.Fatalf("failed to create gRPC server: %v", err)
 	}

@@ -22,6 +22,19 @@ func NewMappingServiceHandler(mappingService *services.MappingService) *MappingS
 	return &MappingServiceHandler{mappingService: mappingService}
 }
 
+// UpdateMapping godoc
+// @Summary Обновить маппинг по ID
+// @Description Возвращает объект маппинга
+// @Tags Mappings
+// @Produce json
+// @Param id path string true "ID маппинга"
+// @Param body body schemas.UpdateMappingSchema true "Данные для обновления"
+// @Success 200 {object} schemas.MappingSchema
+// @Failure 400 "invalid token ID"
+// @Failure 404 "mapping not found"
+// @Failure 500 "internal error"
+// @Security ApiKeyAuth
+// @Router /mappings/{id} [patch]
 func (m *MappingServiceHandler) UpdateMapping(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 	id, err := helpers.ParseUUID(ctx.Param("id"))
@@ -44,7 +57,7 @@ func (m *MappingServiceHandler) UpdateMapping(ctx echo.Context) error {
 		TokenTtl: durationpb.New(updateMappingSchema.TokenTtl),
 	}
 
-	updateMappingResp, err := m.mappingService.UpdateMapping(reqCtx, updateMappingReq)
+	resp, err := m.mappingService.UpdateMapping(reqCtx, updateMappingReq)
 	if err != nil {
 		st, ok := status.FromError(err)
 		if ok {
@@ -71,9 +84,22 @@ func (m *MappingServiceHandler) UpdateMapping(ctx echo.Context) error {
 		return helpers.InternalServerError(ctx, "unexpected error")
 	}
 
-	return ctx.JSON(http.StatusOK, updateMappingResp)
+	return ctx.JSON(http.StatusOK, helpers.ProtoMappingToSchema(resp.MappingModel))
 }
 
+// DeleteMapping godoc
+// @Summary Удалить маппинг по ID
+// @Description Удаляет объект маппинга по ID.
+// @Tags Mappings
+// @Produce json
+// @Param id path string true "ID маппинга"
+// @Success 200 {string} string "OK"
+// @Failure 400 "invalid token ID"
+// @Failure 401 "unauthorized"
+// @Failure 404 "mapping not found"
+// @Failure 500 "internal error"
+// @Security ApiKeyAuth
+// @Router /mappings/{id} [delete]
 func (m *MappingServiceHandler) DeleteMapping(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -115,6 +141,18 @@ func (m *MappingServiceHandler) DeleteMapping(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, nil)
 }
 
+// GetMapping godoc
+// @Summary Получить маппинг по ID
+// @Description Возвращает объект маппинга
+// @Tags Mappings
+// @Produce json
+// @Param id path string true "ID маппинга"
+// @Success 200 {object} schemas.MappingSchema
+// @Failure 400 "invalid token ID"
+// @Failure 404 "mapping not found"
+// @Failure 500 "internal error"
+// @Security ApiKeyAuth
+// @Router /mappings/{id} [get]
 func (m *MappingServiceHandler) GetMapping(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 	id, err := helpers.ParseUUID(ctx.Param("id"))
@@ -125,7 +163,7 @@ func (m *MappingServiceHandler) GetMapping(ctx echo.Context) error {
 		return helpers.BadRequest(ctx, "invalid token ID")
 	}
 
-	getMappingResp, err := m.mappingService.GetMapping(reqCtx, &mapping.GetMappingRequest{Id: id.String()})
+	resp, err := m.mappingService.GetMapping(reqCtx, &mapping.GetMappingRequest{Id: id.String()})
 	if err != nil {
 		st, ok := status.FromError(err)
 		if ok {
@@ -157,9 +195,18 @@ func (m *MappingServiceHandler) GetMapping(ctx echo.Context) error {
 		return helpers.InternalServerError(ctx, "unexpected error")
 	}
 
-	return ctx.JSON(http.StatusOK, getMappingResp.MappingModel)
+	return ctx.JSON(http.StatusOK, helpers.ProtoMappingToSchema(resp.MappingModel))
 }
 
+// GetMappingList godoc
+// @Summary Получить список маппингов
+// @Description Возвращает список маппингов
+// @Tags Mappings
+// @Produce json
+// @Success 200 {array} schemas.MappingSchema
+// @Failure 500 "failed to get mapping list"
+// @Security ApiKeyAuth
+// @Router /mappings/ [get]
 func (m *MappingServiceHandler) GetMappingList(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -169,5 +216,9 @@ func (m *MappingServiceHandler) GetMappingList(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, "failed to get mapping list")
 	}
 
-	return ctx.JSON(http.StatusOK, resp.MappingModels)
+	var mappings []*schemas.MappingSchema
+	for _, mm := range resp.MappingModels {
+		mappings = append(mappings, helpers.ProtoMappingToSchema(mm))
+	}
+	return ctx.JSON(http.StatusOK, mappings)
 }

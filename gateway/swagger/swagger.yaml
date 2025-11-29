@@ -1,0 +1,391 @@
+basePath: /api/v1
+definitions:
+  schemas.DetokenizeRespSchema:
+    properties:
+      plaintext:
+        items:
+          type: integer
+        type: array
+    type: object
+  schemas.DetokenizeSchema:
+    properties:
+      token:
+        type: string
+    type: object
+  schemas.IsAdminRespSchema:
+    properties:
+      result:
+        type: boolean
+    type: object
+  schemas.IsAdminSchema:
+    properties:
+      user_id:
+        type: string
+    type: object
+  schemas.LoginRespSchema:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user_id:
+        type: string
+    type: object
+  schemas.LoginSchema:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  schemas.MappingSchema:
+    properties:
+      cipher_text:
+        example: rfAsPo1N0a3cBiELOlgmHUXS5Q==
+        type: string
+      created_at:
+        example: 2006-01-02T15:04:05Z07:00
+        type: string
+      dek_wrapped:
+        example: dmF1bHQ6djE6dTZCY0lXRURFOG...
+        type: string
+      deterministic:
+        example: true
+        type: boolean
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      reversible:
+        example: true
+        type: boolean
+      token_ttl:
+        example: 24h0m0s
+        type: string
+    type: object
+  schemas.RefreshRespSchema:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  schemas.RefreshSchema:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  schemas.RegisterRespSchema:
+    properties:
+      user_id:
+        type: string
+    type: object
+  schemas.RegisterSchema:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+      role_id:
+        type: integer
+    type: object
+  schemas.TokenizeSchema:
+    properties:
+      deterministic:
+        type: boolean
+      plaintext:
+        items:
+          type: integer
+        type: array
+      reversible:
+        type: boolean
+      token_ttl:
+        type: integer
+    type: object
+  schemas.UpdateMappingSchema:
+    type: object
+info:
+  contact: {}
+  description: Описание эндпоинтов сервиса анонимизации данных
+  title: Anonix Gateway API
+  version: "1.0"
+paths:
+  /auth/isAdmin:
+    post:
+      consumes:
+      - application/json
+      description: По переданному user_id возвращает, является ли пользователь администратором
+      parameters:
+      - description: ID пользователя
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.IsAdminSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.IsAdminRespSchema'
+        "400":
+          description: invalid request body
+        "500":
+          description: failed to check if user is admin
+      summary: Проверить админство пользователя
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Принимает refresh token, возвращает новый access и refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.RefreshSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.RefreshRespSchema'
+        "400":
+          description: invalid request body / failed to refresh token
+        "500":
+          description: unexpected error
+      summary: Обновить токены
+      tags:
+      - Auth
+  /auth/signIn:
+    post:
+      description: Возвращает токен доступа и токен обновления
+      parameters:
+      - description: Данные для авторизации
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.LoginSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.LoginRespSchema'
+        "400":
+          description: invalid request body
+        "401":
+          description: invalid credentials
+        "500":
+          description: failed to log in
+      summary: Авторизация
+      tags:
+      - Auth
+  /auth/signUp:
+    post:
+      description: Возвращает ID пользователя
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.RegisterSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.RegisterRespSchema'
+        "400":
+          description: invalid request body
+        "409":
+          description: user with same login already exists
+        "500":
+          description: failed to register user
+      summary: Зарегистрировать пользователя
+      tags:
+      - Auth
+  /detokenize:
+    post:
+      consumes:
+      - application/json
+      description: Принимает токен, ищет соответствующий mapping и возвращает исходный
+        plaintext
+      parameters:
+      - description: Токен для детокенизации
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.DetokenizeSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.DetokenizeRespSchema'
+        "400":
+          description: invalid request body / invalid arguments
+        "404":
+          description: token not found / token expired
+        "500":
+          description: failed to detokenize / unexpected error
+      security:
+      - ApiKeyAuth: []
+      summary: Детокенизация
+      tags:
+      - Tokenizer
+  /mappings/:
+    get:
+      description: Возвращает список маппингов
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/schemas.MappingSchema'
+            type: array
+        "500":
+          description: failed to get mapping list
+      security:
+      - ApiKeyAuth: []
+      summary: Получить список маппингов
+      tags:
+      - Mappings
+  /mappings/{id}:
+    delete:
+      description: Удаляет объект маппинга по ID.
+      parameters:
+      - description: ID маппинга
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: invalid token ID
+        "401":
+          description: unauthorized
+        "404":
+          description: mapping not found
+        "500":
+          description: internal error
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить маппинг по ID
+      tags:
+      - Mappings
+    get:
+      description: Возвращает объект маппинга
+      parameters:
+      - description: ID маппинга
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.MappingSchema'
+        "400":
+          description: invalid token ID
+        "404":
+          description: mapping not found
+        "500":
+          description: internal error
+      security:
+      - ApiKeyAuth: []
+      summary: Получить маппинг по ID
+      tags:
+      - Mappings
+    patch:
+      description: Возвращает объект маппинга
+      parameters:
+      - description: ID маппинга
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdateMappingSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.MappingSchema'
+        "400":
+          description: invalid token ID
+        "404":
+          description: mapping not found
+        "500":
+          description: internal error
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить маппинг по ID
+      tags:
+      - Mappings
+  /tokenize:
+    post:
+      consumes:
+      - application/json
+      description: Принимает plaintext и параметры токенизации, возвращает созданный
+        токен и метаданные
+      parameters:
+      - description: Данные для токенизации
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.TokenizeSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.MappingSchema'
+        "400":
+          description: invalid request body / invalid arguments
+        "409":
+          description: token already exists
+        "500":
+          description: failed to tokenize / unexpected error
+      security:
+      - ApiKeyAuth: []
+      summary: Токенизация
+      tags:
+      - Tokenizer
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

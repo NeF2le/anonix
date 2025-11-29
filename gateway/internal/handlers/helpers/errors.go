@@ -24,3 +24,7 @@ func Conflict(ctx echo.Context, err string) error {
 func Unauthorized(ctx echo.Context) error {
 	return ctx.JSON(http.StatusUnauthorized, map[string]string{"error": "please log in first"})
 }
+
+func InvalidCredentials(ctx echo.Context) error {
+	return ctx.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid credentials"})
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/NeF2le/anonix/common/postgres"
 	"github.com/NeF2le/anonix/common/redis"
+	"github.com/NeF2le/anonix/common/tls_helpers"
 	"github.com/ilyakaznacheev/cleanenv"
 	"time"
 )
@@ -16,9 +17,10 @@ type AuthServiceConfig struct {
 }
 
 type Config struct {
-	AuthService AuthServiceConfig `yaml:"auth_service" env-prefix:"AUTH_SERVICE_"`
-	Postgres    postgres.Config   `yaml:"postgres" env-prefix:"POSTGRES_"`
-	Redis       redis.Config      `yaml:"redis" env-prefix:"REDIS_"`
+	AuthService AuthServiceConfig  `yaml:"auth_service" env-prefix:"AUTH_SERVICE_"`
+	Postgres    postgres.Config    `yaml:"postgres" env-prefix:"POSTGRES_"`
+	Redis       redis.Config       `yaml:"redis" env-prefix:"REDIS_"`
+	TLS         tls_helpers.Config `yaml:"tls" env-prefix:"TLS_"`
 
 	LogLevel          string        `yaml:"log_level" env:"LOG_LEVEL" env-default:"debug"`
 	MigrationsPath    string        `yaml:"migrations_path" env:"MIGRATIONS_PATH" env-required:"true"`

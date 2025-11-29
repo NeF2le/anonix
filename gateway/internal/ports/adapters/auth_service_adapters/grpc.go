@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/NeF2le/anonix/common/gen/auth_service"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"time"
 )
@@ -21,6 +22,10 @@ func NewAuthServiceAdapterGRPC(address string, dialTimeout time.Duration) *AuthS
 		opts:        []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 		dialTimeout: dialTimeout,
 	}
+}
+
+func (a *AuthServiceAdapterGRPC) AddTLS(creds credentials.TransportCredentials) {
+	a.opts = []grpc.DialOption{grpc.WithTransportCredentials(creds)}
 }
 
 func (a *AuthServiceAdapterGRPC) Register(ctx context.Context, req *auth_service.RegisterRequest) (*auth_service.RegisterResponse, error) {

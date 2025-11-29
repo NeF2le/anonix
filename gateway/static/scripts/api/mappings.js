@@ -15,7 +15,7 @@ async function getMappings() {
 
         const data = await res.json();
         if (!Array.isArray(data)) {
-            throw new Error(`Data of response is not an array`);
+            return [];
         }
 
         return data.map(item => {
@@ -23,8 +23,8 @@ async function getMappings() {
                 id: item.id,
                 cipher_text: item.cipher_text,
                 dek_wrapped: item.dek_wrapped,
-                token_ttl: ttlToHuman(item.token_ttl),
-                created_at: timestampToDate(item.created_at)
+                token_ttl: item.token_ttl,
+                created_at: item.created_at
             };
         });
     } catch (err) {

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/NeF2le/anonix/common/tls_helpers"
 	"github.com/ilyakaznacheev/cleanenv"
 	"time"
 )
@@ -42,6 +43,7 @@ type Config struct {
 	Timeouts      TimeoutsConfig      `yaml:"timeouts" env-prefix:"TIMEOUT_"`
 	HTTPPort      int                 `yaml:"http_port" env:"HTTP_PORT" env-default:"8080"`
 	Gateway       Gateway             `yaml:"gateway" env-prefix:"GATEWAY_"`
+	TLS           tls_helpers.Config  `yaml:"tls" env-prefix:"TLS_"`
 
 	LogLevel              string `yaml:"log_level" env:"LOG_LEVEL" env-default:"debug"`
 	JWTSecret             string `yaml:"jwt_secret" env:"JWT_SECRET" env-default:"secret"`

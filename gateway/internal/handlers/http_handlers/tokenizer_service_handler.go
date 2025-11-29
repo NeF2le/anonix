@@ -30,6 +30,19 @@ func NewTokenizerServiceHandler(
 	}
 }
 
+// Tokenize godoc
+// @Summary Токенизация
+// @Description Принимает plaintext и параметры токенизации, возвращает созданный токен и метаданные
+// @Tags Tokenizer
+// @Accept json
+// @Produce json
+// @Param body body schemas.TokenizeSchema true "Данные для токенизации"
+// @Success 200 {object} schemas.MappingSchema
+// @Failure 400 "invalid request body / invalid arguments"
+// @Failure 409 "token already exists"
+// @Failure 500 "failed to tokenize / unexpected error"
+// @Security ApiKeyAuth
+// @Router /tokenize [post]
 func (t *TokenizerServiceHandler) Tokenize(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -58,9 +71,9 @@ func (t *TokenizerServiceHandler) Tokenize(ctx echo.Context) error {
 		DekWrapped:    tokenizeResp.DekWrapped,
 		Reversible:    tokenizeResp.Reversible,
 		Deterministic: tokenizeResp.Deterministic,
-		TokenTtl:      durationpb.New(time.Duration(tokenizeSchema.TokenTTL)),
+		TokenTtl:      durationpb.New(time.Duration(tokenizeSchema.TokenTTL) * time.Second),
 	}
-	mappingResp, err := t.mappingService.CreateMapping(reqCtx, mappingReq)
+	resp, err := t.mappingService.CreateMapping(reqCtx, mappingReq)
 	if err != nil {
 		st, ok := status.FromError(err)
 		if ok {
@@ -81,9 +94,22 @@ func (t *TokenizerServiceHandler) Tokenize(ctx echo.Context) error {
 		return helpers.InternalServerError(ctx, "unexpected error")
 	}
 
-	return ctx.JSON(http.StatusOK, mappingResp.MappingModel)
+	return ctx.JSON(http.StatusOK, helpers.ProtoMappingToSchema(resp.MappingModel))
 }
 
+// Detokenize godoc
+// @Summary Детокенизация
+// @Description Принимает токен, ищет соответствующий mapping и возвращает исходный plaintext
+// @Tags Tokenizer
+// @Accept json
+// @Produce json
+// @Param body body schemas.DetokenizeSchema true "Токен для детокенизации"
+// @Success 200 {object} schemas.DetokenizeRespSchema
+// @Failure 400 "invalid request body / invalid arguments"
+// @Failure 404 "token not found / token expired"
+// @Failure 500 "failed to detokenize / unexpected error"
+// @Security ApiKeyAuth
+// @Router /detokenize [post]
 func (t *TokenizerServiceHandler) Detokenize(ctx echo.Context) error {
 	reqCtx := ctx.Request().Context()
 
@@ -150,5 +176,5 @@ func (t *TokenizerServiceHandler) Detokenize(ctx echo.Context) error {
 		return helpers.InternalServerError(ctx, "unexpected error")
 	}
 
-	return ctx.JSON(http.StatusOK, detokenizeResp)
+	return ctx.JSON(http.StatusOK, &schemas.DetokenizeRespSchema{Plaintext: detokenizeResp.Plaintext})
 }

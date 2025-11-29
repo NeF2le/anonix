@@ -6,6 +6,7 @@ import (
 	"github.com/NeF2le/anonix/common/gen/tokenizer"
 	"github.com/NeF2le/anonix/common/logger"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
 	"time"
@@ -23,6 +24,10 @@ func NewTokenizerServiceAdapterGRPC(address string, timeout time.Duration) *Toke
 		dialTimeout: timeout,
 		opts:        []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 	}
+}
+
+func (t *TokenizerServiceAdapterGRPC) AddTLS(creds credentials.TransportCredentials) {
+	t.opts = []grpc.DialOption{grpc.WithTransportCredentials(creds)}
 }
 
 func (t *TokenizerServiceAdapterGRPC) Tokenize(ctx context.Context, req *tokenizer.TokenizeRequest) (

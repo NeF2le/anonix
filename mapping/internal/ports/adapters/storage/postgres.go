@@ -49,14 +49,14 @@ func (p *PostgresAdapter) InsertMapping(ctx context.Context, mapping *domain.Map
 			mapping.Reversible,
 			mapping.TokenTtl,
 		).
-		Suffix("RETURNING id").
+		Suffix("RETURNING id, created_at").
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("InsertMapping: failed to build sql: %v", err)
 	}
 
-	err = p.pool.QueryRow(ctx, sql, args...).Scan(&mapping.ID)
+	err = p.pool.QueryRow(ctx, sql, args...).Scan(&mapping.ID, &mapping.CreatedAt)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {

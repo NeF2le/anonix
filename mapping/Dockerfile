@@ -15,6 +15,7 @@ COPY mapping/ ./mapping/
 COPY common/ ./common/
 COPY .env ./.env
 COPY migrations/ ./migrations/
+COPY certs/ ./certs/
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -27,5 +28,6 @@ WORKDIR /app
 COPY --from=builder /build/.env ../.env
 COPY --from=builder /build/mapping_service .
 COPY --from=builder /build/migrations ../migrations
+COPY --from=builder /build/certs ../certs
 
 CMD ["./mapping_service"]

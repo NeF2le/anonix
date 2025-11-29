@@ -16,10 +16,10 @@ func NewHashiCorpAdapter(client *vaultapi.Client) *HashiCorpAdapter {
 	return &HashiCorpAdapter{client: client}
 }
 
-func (h *HashiCorpAdapter) GenerateDEK(ctx context.Context, bits int, keyName, context string) ([]byte, []byte, error) {
+func (h *HashiCorpAdapter) GenerateDEK(ctx context.Context, bits int, keyName string) ([]byte, []byte, error) {
 	resp, err := h.client.Logical().WriteWithContext(ctx, fmt.Sprintf("transit/datakey/plaintext/%s", keyName), map[string]interface{}{
 		"bits":    bits,
-		"context": context,
+		"context": base64.StdEncoding.EncodeToString([]byte("secret")),
 	})
 	if err != nil {
 		return nil, nil, fmt.Errorf("hashiCorpAdapter.GenerateDEK: failed to generate datakey: %w", err)
@@ -36,6 +36,7 @@ func (h *HashiCorpAdapter) GenerateDEK(ctx context.Context, bits int, keyName, c
 func (h *HashiCorpAdapter) UnwrapDEK(ctx context.Context, wrappedDek []byte, keyName string) ([]byte, error) {
 	secret, err := h.client.Logical().WriteWithContext(ctx, fmt.Sprintf("transit/decrypt/%s", keyName), map[string]interface{}{
 		"ciphertext": string(wrappedDek),
+		"context":    base64.StdEncoding.EncodeToString([]byte("secret")),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("hashiCorpAdapter.UnwrapDEK: failed to unwrap dek: %w", err)

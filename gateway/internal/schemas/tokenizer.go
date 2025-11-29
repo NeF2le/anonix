@@ -10,3 +10,7 @@ type TokenizeSchema struct {
 type DetokenizeSchema struct {
 	Token string `json:"token"`
 }
+
+type DetokenizeRespSchema struct {
+	Plaintext []byte `json:"plaintext"`
+}

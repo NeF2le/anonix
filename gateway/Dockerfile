@@ -14,6 +14,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 COPY gateway/ ./gateway/
 COPY common/ ./common/
 COPY .env ./.env
+COPY certs ./certs
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -24,7 +25,9 @@ FROM gcr.io/distroless/base-debian12 AS runner
 WORKDIR /app
 
 COPY --from=builder /build/.env ../.env
+COPY --from=builder /build/certs/ ../certs/
 COPY --from=builder /build/api_gateway .
 COPY --from=builder /build/gateway/static ./static
+COPY --from=builder /build/gateway/swagger ./swagger
 
 CMD ["./api_gateway"]

@@ -57,7 +57,7 @@ async function signIn(payload) {
             throw new Error(`Error ${resp.status} ${data.error}`);
         }
 
-        const isAdmin = isAdminCheck(data.user_id);
+        const isAdmin = await isAdminCheck(data.user_id);
         if (isAdmin) {
             window.location.href = "admin.html";
             return "signed in as admin"

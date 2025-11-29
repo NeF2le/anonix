@@ -6,7 +6,7 @@ import (
 )
 
 type VaultRepository interface {
-	GenerateDEK(ctx context.Context, bits int, keyName, context string) ([]byte, []byte, error)
+	GenerateDEK(ctx context.Context, bits int, keyName string) ([]byte, []byte, error)
 	UnwrapDEK(ctx context.Context, wrappedDek []byte, keyName string) ([]byte, error)
 }
 

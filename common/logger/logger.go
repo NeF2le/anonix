@@ -82,3 +82,9 @@ func (l *Logger) Warn(ctx context.Context, msg string, args ...any) {
 	args = TryAppendRequestIDFromCtx(ctx, args)
 	l.l.Warn(msg, args...)
 }
+
+func (l *Logger) Fatal(ctx context.Context, msg string, args ...any) {
+	args = TryAppendRequestIDFromCtx(ctx, args)
+	l.l.Error(msg, args...)
+	os.Exit(1)
+}

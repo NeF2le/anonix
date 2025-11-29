@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log/slog"
+	"strings"
 )
 
 type grpcAuthHandler struct {
@@ -27,8 +28,14 @@ func (s *grpcAuthHandler) Register(ctx context.Context, req *auth_service.Regist
 	if req.GetLogin() == "" {
 		return nil, status.Error(codes.InvalidArgument, "login required")
 	}
+	if strings.ContainsRune(req.GetLogin(), ' ') {
+		return nil, status.Error(codes.InvalidArgument, "login contains space")
+	}
 	if req.GetPassword() == "" {
 		return nil, status.Error(codes.InvalidArgument, "password required")
+	}
+	if strings.ContainsRune(req.GetPassword(), ' ') {
+		return nil, status.Error(codes.InvalidArgument, "password contains space")
 	}
 	if req.GetRoleId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "role required and must be greater than zero")
@@ -52,7 +59,7 @@ func (s *grpcAuthHandler) Register(ctx context.Context, req *auth_service.Regist
 			slog.String("login", req.GetLogin()),
 			logger.Err(err),
 		)
-		return nil, status.Error(codes.Unauthenticated, "failed to register user")
+		return nil, status.Error(codes.Internal, "failed to register user")
 	}
 
 	logger.GetLoggerFromCtx(ctx).Info(ctx,
@@ -87,7 +94,7 @@ func (s *grpcAuthHandler) Login(ctx context.Context, req *auth_service.LoginRequ
 			slog.String("login", req.GetLogin()),
 			logger.Err(err),
 		)
-		return nil, status.Error(codes.Unauthenticated, "failed to login")
+		return nil, status.Error(codes.Internal, "failed to login")
 	}
 
 	logger.GetLoggerFromCtx(ctx).Info(ctx,
@@ -152,12 +159,12 @@ func (s *grpcAuthHandler) IsAdmin(ctx context.Context, req *auth_service.IsAdmin
 			logger.GetLoggerFromCtx(ctx).Warn(ctx, "invalid user ID",
 				slog.String("userId", req.GetUserId()),
 				logger.Err(err))
-			return nil, status.Error(codes.Unauthenticated, "invalid user ID")
+			return nil, status.Error(codes.InvalidArgument, "invalid user ID")
 		}
 		logger.GetLoggerFromCtx(ctx).Error(ctx, "failed to check if user is admin",
 			slog.String("userId", req.GetUserId()),
 			logger.Err(err))
-		return nil, status.Error(codes.Unauthenticated, "failed to check user admin")
+		return nil, status.Error(codes.Internal, "failed to check user admin")
 	}
 
 	return &auth_service.IsAdminResponse{Result: isAdmin}, nil

@@ -19,3 +19,22 @@ type RefreshSchema struct {
 type IsAdminSchema struct {
 	UserId string `json:"user_id"`
 }
+
+type RegisterRespSchema struct {
+	UserId string `json:"user_id"`
+}
+
+type LoginRespSchema struct {
+	UserId       string `json:"user_id"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type RefreshRespSchema struct {
+	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token"`
+}
+
+type IsAdminRespSchema struct {
+	Result bool `json:"result"`
+}

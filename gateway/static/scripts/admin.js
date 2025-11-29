@@ -1,4 +1,5 @@
 const toast = new Toast();
+const apiBase = window.APP_CONFIG.API_BASE_URL;
 
 const tokenizeModalInstance = new Modal(
     document.getElementById('tokenizeOverlay'),
@@ -66,7 +67,6 @@ tokenizeBtn.addEventListener('click', async () => {
 detokenizeBtn.addEventListener('click', () => detokenizeModalInstance.open());
 refreshMappingListBtn.addEventListener('click', async () => {
     refreshMappingListBtn.classList.add('is-loading');
-    console.log(refreshMappingListBtn.classList);
     await mappingsGrid.refreshRows();
     refreshMappingListBtn.classList.remove('is-loading');
 });

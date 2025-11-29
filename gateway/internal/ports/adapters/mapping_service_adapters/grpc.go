@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/NeF2le/anonix/common/gen/mapping"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"time"
 )
@@ -21,6 +22,10 @@ func NewMappingServiceAdapterGRPC(address string, dialTimeout time.Duration) *Ma
 		opts:        []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 		dialTimeout: dialTimeout,
 	}
+}
+
+func (s *MappingServiceAdapterGRPC) AddTLS(creds credentials.TransportCredentials) {
+	s.opts = []grpc.DialOption{grpc.WithTransportCredentials(creds)}
 }
 
 func (s *MappingServiceAdapterGRPC) CreateMapping(ctx context.Context, req *mapping.CreateMappingRequest) (

@@ -49,11 +49,13 @@ class MappingsGrid {
                 field: "cipher_text",
                 headerName: "Зашифрованный текст",
                 filter: "agTextColumnFilter",
+                cellClass: "cell--select",
             },
             {
                 field: "dek_wrapped",
                 headerName: "Ключ шифрования",
                 filter: "agTextColumnFilter",
+                cellClass: "cell--select",
             },
             {
                 field: "token_ttl",

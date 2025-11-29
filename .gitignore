@@ -33,3 +33,6 @@ go.work.sum
 
 # hashicorp vault
 infra/vault/data/
+
+# certs
+certs/
