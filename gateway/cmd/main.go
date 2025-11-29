@@ -108,9 +108,15 @@ func main() {
 
 	adminGroup := app.Group("/admin")
 	adminGroup.Static("/", "static")
+	var apiBaseURL string
+	if tlsCfg.Enabled {
+		apiBaseURL = fmt.Sprintf("https://%s:%d/api/v1", mainConfig.Gateway.Host, mainConfig.HTTPPort)
+	} else {
+		apiBaseURL = fmt.Sprintf("http://%s:%d/api/v1", mainConfig.Gateway.Host, mainConfig.HTTPPort)
+	}
 	adminGroup.GET("/scripts/config.js", func(c echo.Context) error {
 		jsConfig := map[string]string{
-			"API_BASE_URL": fmt.Sprintf("https://%s:%d/api/v1", mainConfig.Gateway.Host, mainConfig.HTTPPort),
+			"API_BASE_URL": apiBaseURL,
 			"APP_ENV":      mainConfig.Mode,
 		}
 
