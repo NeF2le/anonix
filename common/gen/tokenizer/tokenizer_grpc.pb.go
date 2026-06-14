@@ -19,8 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Tokenizer_Tokenize_FullMethodName   = "/tokenizer.Tokenizer/Tokenize"
-	Tokenizer_Detokenize_FullMethodName = "/tokenizer.Tokenizer/Detokenize"
+	Tokenizer_Tokenize_FullMethodName        = "/tokenizer.Tokenizer/Tokenize"
+	Tokenizer_Detokenize_FullMethodName      = "/tokenizer.Tokenizer/Detokenize"
+	Tokenizer_RotateMasterKey_FullMethodName = "/tokenizer.Tokenizer/RotateMasterKey"
+	Tokenizer_RewrapDEK_FullMethodName       = "/tokenizer.Tokenizer/RewrapDEK"
+	Tokenizer_RotateDEK_FullMethodName       = "/tokenizer.Tokenizer/RotateDEK"
 )
 
 // TokenizerClient is the client API for Tokenizer service.
@@ -29,6 +32,9 @@ const (
 type TokenizerClient interface {
 	Tokenize(ctx context.Context, in *TokenizeRequest, opts ...grpc.CallOption) (*TokenizeResponse, error)
 	Detokenize(ctx context.Context, in *DetokenizeRequest, opts ...grpc.CallOption) (*DetokenizeResponse, error)
+	RotateMasterKey(ctx context.Context, in *RotateMasterKeyRequest, opts ...grpc.CallOption) (*RotateMasterKeyResponse, error)
+	RewrapDEK(ctx context.Context, in *RewrapDEKRequest, opts ...grpc.CallOption) (*RewrapDEKResponse, error)
+	RotateDEK(ctx context.Context, in *RotateDEKRequest, opts ...grpc.CallOption) (*RotateDEKResponse, error)
 }
 
 type tokenizerClient struct {
@@ -59,12 +65,45 @@ func (c *tokenizerClient) Detokenize(ctx context.Context, in *DetokenizeRequest,
 	return out, nil
 }
 
+func (c *tokenizerClient) RotateMasterKey(ctx context.Context, in *RotateMasterKeyRequest, opts ...grpc.CallOption) (*RotateMasterKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RotateMasterKeyResponse)
+	err := c.cc.Invoke(ctx, Tokenizer_RotateMasterKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tokenizerClient) RewrapDEK(ctx context.Context, in *RewrapDEKRequest, opts ...grpc.CallOption) (*RewrapDEKResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RewrapDEKResponse)
+	err := c.cc.Invoke(ctx, Tokenizer_RewrapDEK_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tokenizerClient) RotateDEK(ctx context.Context, in *RotateDEKRequest, opts ...grpc.CallOption) (*RotateDEKResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RotateDEKResponse)
+	err := c.cc.Invoke(ctx, Tokenizer_RotateDEK_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TokenizerServer is the server API for Tokenizer service.
 // All implementations must embed UnimplementedTokenizerServer
 // for forward compatibility.
 type TokenizerServer interface {
 	Tokenize(context.Context, *TokenizeRequest) (*TokenizeResponse, error)
 	Detokenize(context.Context, *DetokenizeRequest) (*DetokenizeResponse, error)
+	RotateMasterKey(context.Context, *RotateMasterKeyRequest) (*RotateMasterKeyResponse, error)
+	RewrapDEK(context.Context, *RewrapDEKRequest) (*RewrapDEKResponse, error)
+	RotateDEK(context.Context, *RotateDEKRequest) (*RotateDEKResponse, error)
 	mustEmbedUnimplementedTokenizerServer()
 }
 
@@ -80,6 +119,15 @@ func (UnimplementedTokenizerServer) Tokenize(context.Context, *TokenizeRequest) 
 }
 func (UnimplementedTokenizerServer) Detokenize(context.Context, *DetokenizeRequest) (*DetokenizeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Detokenize not implemented")
+}
+func (UnimplementedTokenizerServer) RotateMasterKey(context.Context, *RotateMasterKeyRequest) (*RotateMasterKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RotateMasterKey not implemented")
+}
+func (UnimplementedTokenizerServer) RewrapDEK(context.Context, *RewrapDEKRequest) (*RewrapDEKResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RewrapDEK not implemented")
+}
+func (UnimplementedTokenizerServer) RotateDEK(context.Context, *RotateDEKRequest) (*RotateDEKResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RotateDEK not implemented")
 }
 func (UnimplementedTokenizerServer) mustEmbedUnimplementedTokenizerServer() {}
 func (UnimplementedTokenizerServer) testEmbeddedByValue()                   {}
@@ -138,6 +186,60 @@ func _Tokenizer_Detokenize_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Tokenizer_RotateMasterKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RotateMasterKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TokenizerServer).RotateMasterKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tokenizer_RotateMasterKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TokenizerServer).RotateMasterKey(ctx, req.(*RotateMasterKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Tokenizer_RewrapDEK_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RewrapDEKRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TokenizerServer).RewrapDEK(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tokenizer_RewrapDEK_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TokenizerServer).RewrapDEK(ctx, req.(*RewrapDEKRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Tokenizer_RotateDEK_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RotateDEKRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TokenizerServer).RotateDEK(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tokenizer_RotateDEK_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TokenizerServer).RotateDEK(ctx, req.(*RotateDEKRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Tokenizer_ServiceDesc is the grpc.ServiceDesc for Tokenizer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +254,18 @@ var Tokenizer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Detokenize",
 			Handler:    _Tokenizer_Detokenize_Handler,
+		},
+		{
+			MethodName: "RotateMasterKey",
+			Handler:    _Tokenizer_RotateMasterKey_Handler,
+		},
+		{
+			MethodName: "RewrapDEK",
+			Handler:    _Tokenizer_RewrapDEK_Handler,
+		},
+		{
+			MethodName: "RotateDEK",
+			Handler:    _Tokenizer_RotateDEK_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

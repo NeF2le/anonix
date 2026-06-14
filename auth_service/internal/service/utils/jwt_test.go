@@ -23,7 +23,7 @@ func TestGenerateJWT(t *testing.T) {
 	secret := "test-secret"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tokenStr, err := GenerateJWT(tt.userID, tt.ttl, secret, false)
+			tokenStr, err := GenerateJWT(tt.userID, tt.ttl, secret, false, nil, 1)
 			if err != nil {
 				t.Fatalf("GenerateJWT() error = %v", err)
 			}
@@ -41,11 +41,11 @@ func TestGenerateJWT(t *testing.T) {
 func TestParseJWT(t *testing.T) {
 	secret := "test-secret"
 	validTTL := time.Hour
-	accessToken, err := GenerateJWT("user123", validTTL, secret, false)
+	accessToken, err := GenerateJWT("user123", validTTL, secret, false, nil, 1)
 	if err != nil {
 		t.Fatalf("GenerateJWT() error = %v", err)
 	}
-	refreshToken, err := GenerateJWT("user123", validTTL, secret, true)
+	refreshToken, err := GenerateJWT("user123", validTTL, secret, true, nil, 1)
 	if err != nil {
 		t.Fatalf("GenerateJWT() error = %v", err)
 	}
@@ -60,7 +60,7 @@ func TestParseJWT(t *testing.T) {
 	}{
 		{
 			name:    "expired token",
-			token:   func() string { tok, _ := GenerateJWT("user123", -1*time.Hour, secret, false); return tok }(),
+			token:   func() string { tok, _ := GenerateJWT("user123", -1*time.Hour, secret, false, nil, 1); return tok }(),
 			secret:  secret,
 			wantErr: true,
 		},
@@ -96,7 +96,7 @@ func TestParseJWT(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			user, isRefresh, _, err := ParseJWT(tt.token, tt.secret)
+			user, isRefresh, _, _, _, err := ParseJWT(tt.token, tt.secret)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

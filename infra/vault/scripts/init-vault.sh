@@ -103,7 +103,7 @@ if [ -n "$INIT_JSON" ]; then
 fi
 
 # -----------------------------
-# Setting transit secrets engine
+# Создание ключей
 # -----------------------------
 echo "Enabling transit secrets engine (if not enabled)..."
 vault secrets enable -path=transit transit >/dev/null 2>&1 || true
@@ -116,7 +116,7 @@ vault write -f transit/keys/${HMAC_KEY} type=hmac exportable=false >/dev/null 2>
 echo "Transit engine ready"
 
 # -----------------------------
-# Creating policy
+# Создание политики доступа
 # -----------------------------
 cat > "$POLICY_FILE_HOST" <<EOF
 path "transit/encrypt/${CONVERGENT_KEY}" {
@@ -127,6 +127,12 @@ path "transit/decrypt/${CONVERGENT_KEY}" {
 }
 path "transit/datakey/plaintext/${CONVERGENT_KEY}" {
   capabilities = ["create", "update"]
+}
+path "transit/keys/${CONVERGENT_KEY}/rotate" {
+  capabilities = ["update"]
+}
+path "transit/rewrap/${CONVERGENT_KEY}" {
+  capabilities = ["update"]
 }
 
 path "transit/encrypt/${RANDOM_KEY}" {

@@ -31,30 +31,28 @@ func (g *grpcTokenizerHandler) Tokenize(ctx context.Context, req *tokenizer.Toke
 	pars := &domain.TokenizeParams{
 		Plaintext:     req.GetPlaintext(),
 		Deterministic: req.GetDeterministic(),
-		Reversible:    req.GetReversible(),
+		Pseudonymize:  req.GetPseudonymize(),
+		Algorithm:     req.GetAlgorithm(),
 	}
 	res, err := g.tokenizerClient.Tokenize(ctx, pars)
 	if err != nil {
 		logger.GetLoggerFromCtx(ctx).Error(ctx,
 			"failed to tokenize",
-			slog.String("plaintext", string(req.GetPlaintext())),
 			slog.Bool("deterministic", req.GetDeterministic()),
-			slog.Bool("reversible", req.GetReversible()),
+			slog.Bool("pseudonymize", req.GetPseudonymize()),
 			logger.Err(err))
 		return nil, status.Error(codes.Internal, "unable to tokenize plaintext")
 	}
 	logger.GetLoggerFromCtx(ctx).Debug(ctx,
 		"tokenize result",
-		slog.String("plaintext", string(req.GetPlaintext())),
 		slog.Bool("deterministic", req.GetDeterministic()),
-		slog.Bool("reversible", req.GetReversible()),
-		logger.Base64("dek wrapped", res.DekWrapped),
-		logger.Base64("ciphertext", res.Ciphertext))
+		slog.String("algo", res.AlgoName))
 	return &tokenizer.TokenizeResponse{
+		TokenSuffix:   res.TokenSuffix,
 		DekWrapped:    res.DekWrapped,
 		CipherText:    res.Ciphertext,
 		Deterministic: req.GetDeterministic(),
-		Reversible:    req.GetReversible(),
+		AlgoName:      res.AlgoName,
 	}, nil
 }
 
@@ -71,14 +69,13 @@ func (g *grpcTokenizerHandler) Detokenize(ctx context.Context, req *tokenizer.De
 		Deterministic: req.GetDeterministic(),
 		Ciphertext:    req.GetCipherText(),
 		WrappedDek:    req.GetDekWrapped(),
+		AlgoName:      req.GetAlgoName(),
 	}
 
 	plaintext, err := g.tokenizerClient.Detokenize(ctx, pars)
 	if err != nil {
 		logger.GetLoggerFromCtx(ctx).Error(ctx,
 			"failed to detokenize",
-			logger.Base64("ciphertext", req.GetCipherText()),
-			logger.Base64("dek wrapped", req.GetDekWrapped()),
 			slog.Bool("deterministic", req.GetDeterministic()),
 			logger.Err(err))
 		if errors.Is(err, errs.ErrInvalidToken) {
@@ -87,7 +84,69 @@ func (g *grpcTokenizerHandler) Detokenize(ctx context.Context, req *tokenizer.De
 		return nil, status.Error(codes.Internal, "unable to detokenize token")
 	}
 	logger.GetLoggerFromCtx(ctx).Debug(ctx, "detokenize result",
-		slog.String("plaintext", string(plaintext)))
+		slog.Bool("deterministic", req.GetDeterministic()),
+		slog.Int("plaintext_len", len(plaintext)))
 
 	return &tokenizer.DetokenizeResponse{Plaintext: plaintext}, nil
+}
+
+func (g *grpcTokenizerHandler) RotateMasterKey(ctx context.Context, _ *tokenizer.RotateMasterKeyRequest) (
+	*tokenizer.RotateMasterKeyResponse, error) {
+	if err := g.tokenizerClient.RotateMasterKey(ctx); err != nil {
+		logger.GetLoggerFromCtx(ctx).Error(ctx,
+			"failed to rotate master key",
+			logger.Err(err))
+		return nil, status.Error(codes.Internal, "unable to rotate master key")
+	}
+	return &tokenizer.RotateMasterKeyResponse{}, nil
+}
+
+func (g *grpcTokenizerHandler) RewrapDEK(ctx context.Context, req *tokenizer.RewrapDEKRequest) (
+	*tokenizer.RewrapDEKResponse, error) {
+	if req.GetDekWrapped() == nil {
+		return nil, status.Error(codes.InvalidArgument, "dek wrapping is required")
+	}
+
+	newWrappedDek, err := g.tokenizerClient.RewrapDEK(ctx, req.GetDekWrapped())
+	if err != nil {
+		logger.GetLoggerFromCtx(ctx).Error(ctx,
+			"failed to rewrap dek",
+			logger.Err(err))
+		return nil, status.Error(codes.Internal, "unable to rewrap dek")
+	}
+
+	return &tokenizer.RewrapDEKResponse{DekWrapped: newWrappedDek}, nil
+}
+
+func (g *grpcTokenizerHandler) RotateDEK(ctx context.Context, req *tokenizer.RotateDEKRequest) (
+	*tokenizer.RotateDEKResponse, error) {
+	if req.GetDekWrapped() == nil {
+		return nil, status.Error(codes.InvalidArgument, "dek wrapping is required")
+	}
+	if req.GetCipherText() == nil {
+		return nil, status.Error(codes.InvalidArgument, "ciphertext is required")
+	}
+
+	pars := &domain.RotateDEKParams{
+		WrappedDek:    req.GetDekWrapped(),
+		Ciphertext:    req.GetCipherText(),
+		Deterministic: req.GetDeterministic(),
+		AlgoName:      req.GetAlgoName(),
+	}
+
+	res, err := g.tokenizerClient.RotateDEK(ctx, pars)
+	if err != nil {
+		logger.GetLoggerFromCtx(ctx).Error(ctx,
+			"failed to rotate dek",
+			slog.Bool("deterministic", req.GetDeterministic()),
+			slog.String("algo_name", req.GetAlgoName()),
+			logger.Err(err))
+		return nil, status.Error(codes.Internal, "unable to rotate dek")
+	}
+
+	return &tokenizer.RotateDEKResponse{
+		DekWrapped: res.DekWrapped,
+		CipherText: res.Ciphertext,
+		AlgoName:   res.AlgoName,
+	}, nil
 }

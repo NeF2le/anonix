@@ -9,6 +9,16 @@ service AuthService {
   rpc Login (LoginRequest) returns (LoginResponse);
   rpc Refresh (RefreshRequest) returns (RefreshResponse);
   rpc IsAdmin (IsAdminRequest) returns (IsAdminResponse);
+
+  rpc GetUsers (GetUsersRequest) returns (GetUsersResponse);
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+
+  rpc AssignRole (AssignRoleRequest) returns (AssignRoleResponse);
+  rpc RemoveRole (RemoveRoleRequest) returns (RemoveRoleResponse);
+  rpc GetRolesList (GetRolesListRequest) returns (GetRolesListResponse);
+  rpc GetUserRoles (GetUserRolesRequest) returns (GetUserRolesResponse);
+
+  rpc UpdateClearanceLevel (UpdateClearanceLevelRequest) returns (UpdateClearanceLevelResponse);
 }
 
 message RegisterRequest {
@@ -48,3 +58,62 @@ message IsAdminRequest {
 message IsAdminResponse {
   bool result = 1;
 }
+
+message DeleteUserRequest {
+  string user_id = 1;
+}
+
+message DeleteUserResponse {}
+
+message AssignRoleRequest {
+  string user_id = 1;
+  int32 role_id = 2;
+}
+
+message AssignRoleResponse {}
+
+message RemoveRoleRequest {
+  string user_id = 1;
+  int32 role_id = 2;
+}
+
+message RemoveRoleResponse {}
+
+message GetRolesListRequest {}
+
+message Role {
+  int32 id = 1;
+  string name = 2;
+}
+
+message GetRolesListResponse {
+  repeated Role roles = 1;
+}
+
+message User {
+  string id = 1;
+  string login = 2;
+  repeated Role roles = 3;
+  int32 clearance_level = 4;
+}
+
+message GetUsersRequest {}
+
+message GetUsersResponse {
+  repeated User users = 1;
+}
+
+message GetUserRolesRequest {
+  string user_id = 1;
+}
+
+message GetUserRolesResponse {
+  repeated Role roles = 1;
+}
+
+message UpdateClearanceLevelRequest {
+  string user_id = 1;
+  int32 clearance_level = 2;
+}
+
+message UpdateClearanceLevelResponse {}

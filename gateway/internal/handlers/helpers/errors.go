@@ -21,6 +21,10 @@ func Conflict(ctx echo.Context, err string) error {
 	return ctx.JSON(http.StatusConflict, map[string]string{"error": err})
 }
 
+func Forbidden(ctx echo.Context, err string) error {
+	return ctx.JSON(http.StatusForbidden, map[string]string{"error": err})
+}
+
 func Unauthorized(ctx echo.Context) error {
 	return ctx.JSON(http.StatusUnauthorized, map[string]string{"error": "please log in first"})
 }

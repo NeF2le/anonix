@@ -10,7 +10,6 @@ import (
 	"github.com/NeF2le/anonix/gateway/internal/services"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-	"log/slog"
 	"strings"
 	"time"
 )
@@ -39,10 +38,8 @@ func (a *AuthMiddleware) CheckAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		reqCtx := c.Request().Context()
 		accessToken := a.getAccessTokenFromRequest(c)
-		logger.GetLoggerFromCtx(reqCtx).Debug(reqCtx, "got access token",
-			slog.String("access_token", accessToken))
 
-		sub, finalAccess, err := a.ensureValidAccessToken(c, accessToken)
+		sub, finalAccess, roles, clearanceLevel, err := a.ensureValidAccessToken(c, accessToken)
 		if err != nil {
 			switch {
 			case errors.Is(err, errs.ErrInvalidAccessToken):
@@ -60,6 +57,9 @@ func (a *AuthMiddleware) CheckAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			a.setAuthHeader(c, finalAccess)
 		}
 		c.Set("userID", sub)
+		c.Set("roles", roles)
+		c.Set("clearanceLevel", clearanceLevel)
+
 		return next(c)
 	}
 }
@@ -68,56 +68,55 @@ func (a *AuthMiddleware) setAuthHeader(c echo.Context, token string) {
 	c.Request().Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 }
 
-func (a *AuthMiddleware) ensureValidAccessToken(c echo.Context, accessToken string) (string, string, error) {
+func (a *AuthMiddleware) ensureValidAccessToken(c echo.Context, accessToken string) (string, string, []*auth_service.Role, int, error) {
 	if accessToken == "" {
 		newAccess, err := a.refreshAndSetCookies(c)
 		if err != nil {
-			return "", "", errs.ErrUnauthorized
+			return "", "", nil, 0, errs.ErrUnauthorized
 		}
 		accessToken = newAccess
 		a.setAuthHeader(c, accessToken)
 	}
 
-	// Parsing access token
-	sub, isRefresh, expTime, err := a.parseJwt(accessToken, a.jwtSecret)
+	sub, isRefresh, expTime, roles, clearanceLevel, err := a.parseJwt(accessToken, a.jwtSecret)
 	if err != nil {
-		// If parsing failed, trying to refresh
 		newAccess, refErr := a.refreshAndSetCookies(c)
 		if refErr != nil {
-			return "", "", errs.ErrUnauthorized
+			return "", "", nil, 0, errs.ErrUnauthorized
 		}
-		sub, isRefresh, expTime, err = a.parseJwt(newAccess, a.jwtSecret)
+		sub, isRefresh, expTime, roles, clearanceLevel, err = a.parseJwt(newAccess, a.jwtSecret)
 		if err != nil {
-			return "", "", errs.ErrUnauthorized
+			return "", "", nil, 0, errs.ErrUnauthorized
 		}
 		if isRefresh {
-			return "", "", errs.ErrInvalidAccessToken
+			return "", "", nil, 0, errs.ErrInvalidAccessToken
 		}
 		accessToken = newAccess
 		a.setAuthHeader(c, accessToken)
 	}
 
 	if isRefresh {
-		return "", "", errs.ErrInvalidAccessToken
+		return "", "", nil, 0, errs.ErrInvalidAccessToken
 	}
 
 	if time.Now().After(expTime) {
 		newAccess, refErr := a.refreshAndSetCookies(c)
 		if refErr != nil {
-			return "", "", errs.ErrUnauthorized
+			return "", "", nil, 0, errs.ErrUnauthorized
 		}
-		sub, isRefresh, expTime, err = a.parseJwt(newAccess, a.jwtSecret)
+		sub, isRefresh, expTime, roles, clearanceLevel, err = a.parseJwt(newAccess, a.jwtSecret)
 		if err != nil {
-			return "", "", errs.ErrUnauthorized
+			return "", "", nil, 0, errs.ErrUnauthorized
 		}
 		if isRefresh {
-			return "", "", errs.ErrInvalidAccessToken
+			return "", "", nil, 0, errs.ErrInvalidAccessToken
 		}
 		accessToken = newAccess
 		a.setAuthHeader(c, accessToken)
 	}
 
-	return sub, accessToken, nil
+	_ = expTime
+	return sub, accessToken, roles, clearanceLevel, nil
 }
 
 func (a *AuthMiddleware) getAccessTokenFromRequest(c echo.Context) string {
@@ -151,7 +150,7 @@ func (a *AuthMiddleware) refreshAndSetCookies(c echo.Context) (string, error) {
 	return resp.AccessToken, nil
 }
 
-func (a *AuthMiddleware) parseJwt(rawToken, jwtSecret string) (string, bool, time.Time, error) {
+func (a *AuthMiddleware) parseJwt(rawToken, jwtSecret string) (string, bool, time.Time, []*auth_service.Role, int, error) {
 	token, err := jwt.Parse(rawToken, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
@@ -160,27 +159,39 @@ func (a *AuthMiddleware) parseJwt(rawToken, jwtSecret string) (string, bool, tim
 	})
 
 	if err != nil || !token.Valid {
-		return "", false, time.Time{}, errs.ErrInvalidToken
+		return "", false, time.Time{}, nil, 0, errs.ErrInvalidToken
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", false, time.Time{}, errs.ErrInvalidToken
+		return "", false, time.Time{}, nil, 0, errs.ErrInvalidToken
 	}
 
 	sub, err := claims.GetSubject()
 	if err != nil || sub == "" {
-		return "", false, time.Time{}, errs.ErrInvalidToken
+		return "", false, time.Time{}, nil, 0, errs.ErrInvalidToken
 	}
 
 	exp, err := token.Claims.GetExpirationTime()
 	if err != nil {
-		return "", false, time.Time{}, err
+		return "", false, time.Time{}, nil, 0, err
 	}
-
-	expTime := time.Unix(exp.Unix(), 0)
 
 	isRefresh, _ := claims["is_refresh"].(bool)
 
-	return sub, isRefresh, expTime, nil
+	var roles []*auth_service.Role
+	if raw, ok := claims["roles"].([]interface{}); ok {
+		for _, r := range raw {
+			if name, ok := r.(string); ok {
+				roles = append(roles, &auth_service.Role{Name: name})
+			}
+		}
+	}
+
+	clearanceLevel := 1
+	if raw, ok := claims["clearance_level"].(float64); ok {
+		clearanceLevel = int(raw)
+	}
+
+	return sub, isRefresh, time.Unix(exp.Unix(), 0), roles, clearanceLevel, nil
 }

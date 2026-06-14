@@ -64,3 +64,63 @@ func (t *TokenizerService) Detokenize(ctx context.Context, req *tokenizer.Detoke
 
 	return <-resultChan, nil
 }
+
+func (t *TokenizerService) RotateMasterKey(ctx context.Context, req *tokenizer.RotateMasterKeyRequest) (
+	*tokenizer.RotateMasterKeyResponse, error) {
+	resultChan := make(chan *tokenizer.RotateMasterKeyResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := t.TokenizerServiceRepo.RotateMasterKey(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, t.MaxRetries, t.BaseDelay)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return <-resultChan, nil
+}
+
+func (t *TokenizerService) RewrapDEK(ctx context.Context, req *tokenizer.RewrapDEKRequest) (
+	*tokenizer.RewrapDEKResponse, error) {
+	resultChan := make(chan *tokenizer.RewrapDEKResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := t.TokenizerServiceRepo.RewrapDEK(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, t.MaxRetries, t.BaseDelay)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return <-resultChan, nil
+}
+
+func (t *TokenizerService) RotateDEK(ctx context.Context, req *tokenizer.RotateDEKRequest) (
+	*tokenizer.RotateDEKResponse, error) {
+	resultChan := make(chan *tokenizer.RotateDEKResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := t.TokenizerServiceRepo.RotateDEK(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, t.MaxRetries, t.BaseDelay)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return <-resultChan, nil
+}

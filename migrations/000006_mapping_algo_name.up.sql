@@ -1,0 +1,1 @@
+ALTER TABLE mapping.mappings ADD COLUMN IF NOT EXISTS algo_name VARCHAR(50) NOT NULL DEFAULT '';

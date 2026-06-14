@@ -1,5 +1,23 @@
 basePath: /api/v1
 definitions:
+  schemas.CreateKindSchema:
+    properties:
+      access_level:
+        example: 3
+        type: integer
+      mask:
+        example: ^\d{4} \d{6}$
+        type: string
+      name:
+        example: passport
+        type: string
+      russian_name:
+        example: Паспорт
+        type: string
+      short_name:
+        example: psp
+        type: string
+    type: object
   schemas.DetokenizeRespSchema:
     properties:
       plaintext:
@@ -12,6 +30,13 @@ definitions:
       token:
         type: string
     type: object
+  schemas.GetUserRolesRespSchema:
+    properties:
+      roles:
+        items:
+          $ref: '#/definitions/schemas.RoleSchema'
+        type: array
+    type: object
   schemas.IsAdminRespSchema:
     properties:
       result:
@@ -22,12 +47,37 @@ definitions:
       user_id:
         type: string
     type: object
+  schemas.KindSchema:
+    properties:
+      access_level:
+        example: 3
+        type: integer
+      id:
+        example: 1
+        type: integer
+      mask:
+        example: ^\d{4} \d{6}$
+        type: string
+      name:
+        example: passport
+        type: string
+      russian_name:
+        example: Паспорт
+        type: string
+      short_name:
+        example: psp
+        type: string
+    type: object
   schemas.LoginRespSchema:
     properties:
       access_token:
         type: string
       refresh_token:
         type: string
+      roles:
+        items:
+          $ref: '#/definitions/schemas.RoleSchema'
+        type: array
       user_id:
         type: string
     type: object
@@ -55,9 +105,11 @@ definitions:
       id:
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
-      reversible:
-        example: true
-        type: boolean
+      kind:
+        $ref: '#/definitions/schemas.KindSchema'
+      token:
+        example: fio_7f82a1c3
+        type: string
       token_ttl:
         example: 24h0m0s
         type: string
@@ -90,18 +142,53 @@ definitions:
       role_id:
         type: integer
     type: object
+  schemas.RoleSchema:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  schemas.TokenizeResultSchema:
+    properties:
+      token:
+        example: fio_7f82a1c3
+        type: string
+    type: object
   schemas.TokenizeSchema:
     properties:
       deterministic:
         type: boolean
+      kind_id:
+        type: integer
+      mode:
+        description: '"pseudonymize" | "anonymize"'
+        example: pseudonymize
+        type: string
       plaintext:
         items:
           type: integer
         type: array
-      reversible:
-        type: boolean
       token_ttl:
         type: integer
+    type: object
+  schemas.UpdateKindSchema:
+    properties:
+      access_level:
+        example: 3
+        type: integer
+      mask:
+        example: ^\d{4} \d{6}$
+        type: string
+      name:
+        example: passport
+        type: string
+      russian_name:
+        example: Паспорт
+        type: string
+      short_name:
+        example: psp
+        type: string
     type: object
   schemas.UpdateMappingSchema:
     type: object
@@ -135,6 +222,21 @@ paths:
         "500":
           description: failed to check if user is admin
       summary: Проверить админство пользователя
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      description: Возвращает роли авторизованного пользователя из токена доступа
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.GetUserRolesRespSchema'
+        "401":
+          description: unauthorized
+      summary: Получить роли текущего пользователя
       tags:
       - Auth
   /auth/refresh:
@@ -246,6 +348,141 @@ paths:
       summary: Детокенизация
       tags:
       - Tokenizer
+  /kinds:
+    get:
+      description: Возвращает список видов данных
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/schemas.KindSchema'
+            type: array
+        "500":
+          description: failed to get kind list
+      security:
+      - ApiKeyAuth: []
+      summary: Получить список видов данных
+      tags:
+      - Kinds
+    post:
+      consumes:
+      - application/json
+      description: Создает новый вид данных
+      parameters:
+      - description: Данные вида данных
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.CreateKindSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.KindSchema'
+        "400":
+          description: invalid request
+        "409":
+          description: kind already exists
+        "500":
+          description: internal error
+      security:
+      - ApiKeyAuth: []
+      summary: Создать вид данных
+      tags:
+      - Kinds
+  /kinds/{id}:
+    delete:
+      description: Удаляет вид данных по ID
+      parameters:
+      - description: ID вида данных
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: invalid kind ID
+        "404":
+          description: kind not found
+        "500":
+          description: internal error
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить вид данных
+      tags:
+      - Kinds
+    get:
+      description: Возвращает объект вида данных
+      parameters:
+      - description: ID вида данных
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.KindSchema'
+        "400":
+          description: invalid kind ID
+        "404":
+          description: kind not found
+        "500":
+          description: internal error
+      security:
+      - ApiKeyAuth: []
+      summary: Получить вид данных по ID
+      tags:
+      - Kinds
+    patch:
+      consumes:
+      - application/json
+      description: Возвращает обновленный вид данных
+      parameters:
+      - description: ID вида данных
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdateKindSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.KindSchema'
+        "400":
+          description: invalid kind ID
+        "404":
+          description: kind not found
+        "500":
+          description: internal error
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить вид данных
+      tags:
+      - Kinds
   /mappings/:
     get:
       description: Возвращает список маппингов
@@ -356,8 +593,11 @@ paths:
     post:
       consumes:
       - application/json
-      description: Принимает plaintext и параметры токенизации, возвращает созданный
-        токен и метаданные
+      description: |-
+        Принимает plaintext и параметры токенизации, возвращает созданный токен и метаданные.
+        Режим "pseudonymize" — обратимая операция, mapping сохраняется и его можно детокенизировать.
+        Режим "anonymize" — необратимая операция, mapping нигде не сохраняется,
+        ответом является schemas.TokenizeResultSchema, такой токен нельзя детокенизировать.
       parameters:
       - description: Данные для токенизации
         in: body
@@ -369,9 +609,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: mode=anonymize
           schema:
-            $ref: '#/definitions/schemas.MappingSchema'
+            $ref: '#/definitions/schemas.TokenizeResultSchema'
         "400":
           description: invalid request body / invalid arguments
         "409":

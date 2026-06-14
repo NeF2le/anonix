@@ -4,4 +4,5 @@ type DetokenizeParams struct {
 	Ciphertext    []byte
 	WrappedDek    []byte
 	Deterministic bool
+	AlgoName      string
 }

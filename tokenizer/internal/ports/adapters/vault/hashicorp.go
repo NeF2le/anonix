@@ -33,6 +33,33 @@ func (h *HashiCorpAdapter) GenerateDEK(ctx context.Context, bits int, keyName st
 	return []byte(wrappedDek), dek, nil
 }
 
+func (h *HashiCorpAdapter) RotateKey(ctx context.Context, keyName string) error {
+	_, err := h.client.Logical().WriteWithContext(ctx, fmt.Sprintf("transit/keys/%s/rotate", keyName), nil)
+	if err != nil {
+		return fmt.Errorf("hashiCorpAdapter.RotateKey: failed to rotate key: %w", err)
+	}
+	return nil
+}
+
+func (h *HashiCorpAdapter) RewrapDEK(ctx context.Context, wrappedDek []byte, keyName string) ([]byte, error) {
+	secret, err := h.client.Logical().WriteWithContext(ctx, fmt.Sprintf("transit/rewrap/%s", keyName), map[string]interface{}{
+		"ciphertext": string(wrappedDek),
+		"context":    base64.StdEncoding.EncodeToString([]byte("secret")),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("hashiCorpAdapter.RewrapDEK: failed to rewrap dek: %w", err)
+	}
+	if secret == nil || secret.Data == nil {
+		return nil, fmt.Errorf("hashiCorpAdapter.RewrapDEK: empty response")
+	}
+	ciphertext, ok := secret.Data["ciphertext"].(string)
+	if !ok {
+		return nil, fmt.Errorf("hashiCorpAdapter.RewrapDEK: ciphertext not found in response")
+	}
+
+	return []byte(ciphertext), nil
+}
+
 func (h *HashiCorpAdapter) UnwrapDEK(ctx context.Context, wrappedDek []byte, keyName string) ([]byte, error) {
 	secret, err := h.client.Logical().WriteWithContext(ctx, fmt.Sprintf("transit/decrypt/%s", keyName), map[string]interface{}{
 		"ciphertext": string(wrappedDek),

@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"log"
+
 	"github.com/NeF2le/anonix/auth_service/internal/config"
 	"github.com/NeF2le/anonix/auth_service/internal/ports/adapters/cache"
 	"github.com/NeF2le/anonix/auth_service/internal/ports/adapters/storage"
@@ -14,7 +16,6 @@ import (
 	"github.com/NeF2le/anonix/common/tls_helpers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"log"
 )
 
 func main() {
@@ -66,10 +67,10 @@ func main() {
 			panic(err)
 		}
 		grpcServer, err = transportgrpc.CreateGRPCTLS(grpcHandler, grpcTls)
-		logger.GetLoggerFromCtx(ctx).Info(ctx, "tokenizer grpc server created with tls")
+		logger.GetLoggerFromCtx(ctx).Info(ctx, "auth grpc server created with tls")
 	} else {
 		grpcServer, err = transportgrpc.CreateGRPC(grpcHandler)
-		logger.GetLoggerFromCtx(ctx).Info(ctx, "tokenizer grpc server created without tls")
+		logger.GetLoggerFromCtx(ctx).Info(ctx, "auth grpc server created without tls")
 	}
 
 	if err != nil {

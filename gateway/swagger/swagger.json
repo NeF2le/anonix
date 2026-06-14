@@ -48,6 +48,29 @@
                 }
             }
         },
+        "/auth/me": {
+            "get": {
+                "description": "Возвращает роли авторизованного пользователя из токена доступа",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Получить роли текущего пользователя",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.GetUserRolesRespSchema"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized"
+                    }
+                }
+            }
+        },
         "/auth/refresh": {
             "post": {
                 "description": "Принимает refresh token, возвращает новый access и refresh token",
@@ -212,6 +235,220 @@
                     },
                     "500": {
                         "description": "failed to detokenize / unexpected error"
+                    }
+                }
+            }
+        },
+        "/kinds": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Возвращает список видов данных",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kinds"
+                ],
+                "summary": "Получить список видов данных",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/schemas.KindSchema"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "failed to get kind list"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Создает новый вид данных",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kinds"
+                ],
+                "summary": "Создать вид данных",
+                "parameters": [
+                    {
+                        "description": "Данные вида данных",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.CreateKindSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.KindSchema"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid request"
+                    },
+                    "409": {
+                        "description": "kind already exists"
+                    },
+                    "500": {
+                        "description": "internal error"
+                    }
+                }
+            }
+        },
+        "/kinds/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Возвращает объект вида данных",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kinds"
+                ],
+                "summary": "Получить вид данных по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID вида данных",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.KindSchema"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid kind ID"
+                    },
+                    "404": {
+                        "description": "kind not found"
+                    },
+                    "500": {
+                        "description": "internal error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаляет вид данных по ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kinds"
+                ],
+                "summary": "Удалить вид данных",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID вида данных",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid kind ID"
+                    },
+                    "404": {
+                        "description": "kind not found"
+                    },
+                    "500": {
+                        "description": "internal error"
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Возвращает обновленный вид данных",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kinds"
+                ],
+                "summary": "Обновить вид данных",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID вида данных",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdateKindSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.KindSchema"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid kind ID"
+                    },
+                    "404": {
+                        "description": "kind not found"
+                    },
+                    "500": {
+                        "description": "internal error"
                     }
                 }
             }
@@ -391,7 +628,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Принимает plaintext и параметры токенизации, возвращает созданный токен и метаданные",
+                "description": "Принимает plaintext и параметры токенизации, возвращает созданный токен и метаданные.\nРежим \"pseudonymize\" — обратимая операция, mapping сохраняется и его можно детокенизировать.\nРежим \"anonymize\" — необратимая операция, mapping нигде не сохраняется,\nответом является schemas.TokenizeResultSchema, такой токен нельзя детокенизировать.",
                 "consumes": [
                     "application/json"
                 ],
@@ -415,9 +652,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "mode=anonymize",
                         "schema": {
-                            "$ref": "#/definitions/schemas.MappingSchema"
+                            "$ref": "#/definitions/schemas.TokenizeResultSchema"
                         }
                     },
                     "400": {
@@ -434,6 +671,31 @@
         }
     },
     "definitions": {
+        "schemas.CreateKindSchema": {
+            "type": "object",
+            "properties": {
+                "access_level": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "mask": {
+                    "type": "string",
+                    "example": "^\\d{4} \\d{6}$"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "passport"
+                },
+                "russian_name": {
+                    "type": "string",
+                    "example": "Паспорт"
+                },
+                "short_name": {
+                    "type": "string",
+                    "example": "psp"
+                }
+            }
+        },
         "schemas.DetokenizeRespSchema": {
             "type": "object",
             "properties": {
@@ -453,6 +715,17 @@
                 }
             }
         },
+        "schemas.GetUserRolesRespSchema": {
+            "type": "object",
+            "properties": {
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schemas.RoleSchema"
+                    }
+                }
+            }
+        },
         "schemas.IsAdminRespSchema": {
             "type": "object",
             "properties": {
@@ -469,6 +742,35 @@
                 }
             }
         },
+        "schemas.KindSchema": {
+            "type": "object",
+            "properties": {
+                "access_level": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "mask": {
+                    "type": "string",
+                    "example": "^\\d{4} \\d{6}$"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "passport"
+                },
+                "russian_name": {
+                    "type": "string",
+                    "example": "Паспорт"
+                },
+                "short_name": {
+                    "type": "string",
+                    "example": "psp"
+                }
+            }
+        },
         "schemas.LoginRespSchema": {
             "type": "object",
             "properties": {
@@ -477,6 +779,12 @@
                 },
                 "refresh_token": {
                     "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schemas.RoleSchema"
+                    }
                 },
                 "user_id": {
                     "type": "string"
@@ -517,9 +825,12 @@
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
-                "reversible": {
-                    "type": "boolean",
-                    "example": true
+                "kind": {
+                    "$ref": "#/definitions/schemas.KindSchema"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "fio_7f82a1c3"
                 },
                 "token_ttl": {
                     "type": "string",
@@ -571,11 +882,39 @@
                 }
             }
         },
+        "schemas.RoleSchema": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.TokenizeResultSchema": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "fio_7f82a1c3"
+                }
+            }
+        },
         "schemas.TokenizeSchema": {
             "type": "object",
             "properties": {
                 "deterministic": {
                     "type": "boolean"
+                },
+                "kind_id": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "description": "\"pseudonymize\" | \"anonymize\"",
+                    "type": "string",
+                    "example": "pseudonymize"
                 },
                 "plaintext": {
                     "type": "array",
@@ -583,11 +922,33 @@
                         "type": "integer"
                     }
                 },
-                "reversible": {
-                    "type": "boolean"
-                },
                 "token_ttl": {
                     "type": "integer"
+                }
+            }
+        },
+        "schemas.UpdateKindSchema": {
+            "type": "object",
+            "properties": {
+                "access_level": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "mask": {
+                    "type": "string",
+                    "example": "^\\d{4} \\d{6}$"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "passport"
+                },
+                "russian_name": {
+                    "type": "string",
+                    "example": "Паспорт"
+                },
+                "short_name": {
+                    "type": "string",
+                    "example": "psp"
                 }
             }
         },

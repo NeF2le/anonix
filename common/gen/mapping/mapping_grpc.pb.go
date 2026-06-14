@@ -19,11 +19,22 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Mapping_CreateMapping_FullMethodName  = "/mapping.Mapping/CreateMapping"
-	Mapping_DeleteMapping_FullMethodName  = "/mapping.Mapping/DeleteMapping"
-	Mapping_UpdateMapping_FullMethodName  = "/mapping.Mapping/UpdateMapping"
-	Mapping_GetMapping_FullMethodName     = "/mapping.Mapping/GetMapping"
-	Mapping_GetMappingList_FullMethodName = "/mapping.Mapping/GetMappingList"
+	Mapping_CreateMapping_FullMethodName       = "/mapping.Mapping/CreateMapping"
+	Mapping_DeleteMapping_FullMethodName       = "/mapping.Mapping/DeleteMapping"
+	Mapping_UpdateMapping_FullMethodName       = "/mapping.Mapping/UpdateMapping"
+	Mapping_GetMapping_FullMethodName          = "/mapping.Mapping/GetMapping"
+	Mapping_GetMappingByToken_FullMethodName   = "/mapping.Mapping/GetMappingByToken"
+	Mapping_GetMappingList_FullMethodName      = "/mapping.Mapping/GetMappingList"
+	Mapping_CreateKind_FullMethodName          = "/mapping.Mapping/CreateKind"
+	Mapping_GetKind_FullMethodName             = "/mapping.Mapping/GetKind"
+	Mapping_ListKinds_FullMethodName           = "/mapping.Mapping/ListKinds"
+	Mapping_UpdateKind_FullMethodName          = "/mapping.Mapping/UpdateKind"
+	Mapping_DeleteKind_FullMethodName          = "/mapping.Mapping/DeleteKind"
+	Mapping_GetKindByName_FullMethodName       = "/mapping.Mapping/GetKindByName"
+	Mapping_CreateAuditLog_FullMethodName      = "/mapping.Mapping/CreateAuditLog"
+	Mapping_GetAuditLogList_FullMethodName     = "/mapping.Mapping/GetAuditLogList"
+	Mapping_UpdateMappingDek_FullMethodName    = "/mapping.Mapping/UpdateMappingDek"
+	Mapping_UpdateMappingCrypto_FullMethodName = "/mapping.Mapping/UpdateMappingCrypto"
 )
 
 // MappingClient is the client API for Mapping service.
@@ -34,7 +45,18 @@ type MappingClient interface {
 	DeleteMapping(ctx context.Context, in *DeleteMappingRequest, opts ...grpc.CallOption) (*DeleteMappingResponse, error)
 	UpdateMapping(ctx context.Context, in *UpdateMappingRequest, opts ...grpc.CallOption) (*UpdateMappingResponse, error)
 	GetMapping(ctx context.Context, in *GetMappingRequest, opts ...grpc.CallOption) (*GetMappingResponse, error)
+	GetMappingByToken(ctx context.Context, in *GetMappingByTokenRequest, opts ...grpc.CallOption) (*GetMappingResponse, error)
 	GetMappingList(ctx context.Context, in *GetMappingListRequest, opts ...grpc.CallOption) (*GetMappingListResponse, error)
+	CreateKind(ctx context.Context, in *CreateKindRequest, opts ...grpc.CallOption) (*CreateKindResponse, error)
+	GetKind(ctx context.Context, in *GetKindRequest, opts ...grpc.CallOption) (*GetKindResponse, error)
+	ListKinds(ctx context.Context, in *ListKindsRequest, opts ...grpc.CallOption) (*ListKindsResponse, error)
+	UpdateKind(ctx context.Context, in *UpdateKindRequest, opts ...grpc.CallOption) (*UpdateKindResponse, error)
+	DeleteKind(ctx context.Context, in *DeleteKindRequest, opts ...grpc.CallOption) (*DeleteKindResponse, error)
+	GetKindByName(ctx context.Context, in *GetKindByNameRequest, opts ...grpc.CallOption) (*GetKindByNameResponse, error)
+	CreateAuditLog(ctx context.Context, in *CreateAuditLogRequest, opts ...grpc.CallOption) (*CreateAuditLogResponse, error)
+	GetAuditLogList(ctx context.Context, in *GetAuditLogListRequest, opts ...grpc.CallOption) (*GetAuditLogListResponse, error)
+	UpdateMappingDek(ctx context.Context, in *UpdateMappingDekRequest, opts ...grpc.CallOption) (*UpdateMappingDekResponse, error)
+	UpdateMappingCrypto(ctx context.Context, in *UpdateMappingCryptoRequest, opts ...grpc.CallOption) (*UpdateMappingCryptoResponse, error)
 }
 
 type mappingClient struct {
@@ -85,10 +107,120 @@ func (c *mappingClient) GetMapping(ctx context.Context, in *GetMappingRequest, o
 	return out, nil
 }
 
+func (c *mappingClient) GetMappingByToken(ctx context.Context, in *GetMappingByTokenRequest, opts ...grpc.CallOption) (*GetMappingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMappingResponse)
+	err := c.cc.Invoke(ctx, Mapping_GetMappingByToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *mappingClient) GetMappingList(ctx context.Context, in *GetMappingListRequest, opts ...grpc.CallOption) (*GetMappingListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetMappingListResponse)
 	err := c.cc.Invoke(ctx, Mapping_GetMappingList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) CreateKind(ctx context.Context, in *CreateKindRequest, opts ...grpc.CallOption) (*CreateKindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateKindResponse)
+	err := c.cc.Invoke(ctx, Mapping_CreateKind_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) GetKind(ctx context.Context, in *GetKindRequest, opts ...grpc.CallOption) (*GetKindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetKindResponse)
+	err := c.cc.Invoke(ctx, Mapping_GetKind_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) ListKinds(ctx context.Context, in *ListKindsRequest, opts ...grpc.CallOption) (*ListKindsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListKindsResponse)
+	err := c.cc.Invoke(ctx, Mapping_ListKinds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) UpdateKind(ctx context.Context, in *UpdateKindRequest, opts ...grpc.CallOption) (*UpdateKindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateKindResponse)
+	err := c.cc.Invoke(ctx, Mapping_UpdateKind_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) DeleteKind(ctx context.Context, in *DeleteKindRequest, opts ...grpc.CallOption) (*DeleteKindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteKindResponse)
+	err := c.cc.Invoke(ctx, Mapping_DeleteKind_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) GetKindByName(ctx context.Context, in *GetKindByNameRequest, opts ...grpc.CallOption) (*GetKindByNameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetKindByNameResponse)
+	err := c.cc.Invoke(ctx, Mapping_GetKindByName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) CreateAuditLog(ctx context.Context, in *CreateAuditLogRequest, opts ...grpc.CallOption) (*CreateAuditLogResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAuditLogResponse)
+	err := c.cc.Invoke(ctx, Mapping_CreateAuditLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) GetAuditLogList(ctx context.Context, in *GetAuditLogListRequest, opts ...grpc.CallOption) (*GetAuditLogListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAuditLogListResponse)
+	err := c.cc.Invoke(ctx, Mapping_GetAuditLogList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) UpdateMappingDek(ctx context.Context, in *UpdateMappingDekRequest, opts ...grpc.CallOption) (*UpdateMappingDekResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateMappingDekResponse)
+	err := c.cc.Invoke(ctx, Mapping_UpdateMappingDek_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mappingClient) UpdateMappingCrypto(ctx context.Context, in *UpdateMappingCryptoRequest, opts ...grpc.CallOption) (*UpdateMappingCryptoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateMappingCryptoResponse)
+	err := c.cc.Invoke(ctx, Mapping_UpdateMappingCrypto_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +235,18 @@ type MappingServer interface {
 	DeleteMapping(context.Context, *DeleteMappingRequest) (*DeleteMappingResponse, error)
 	UpdateMapping(context.Context, *UpdateMappingRequest) (*UpdateMappingResponse, error)
 	GetMapping(context.Context, *GetMappingRequest) (*GetMappingResponse, error)
+	GetMappingByToken(context.Context, *GetMappingByTokenRequest) (*GetMappingResponse, error)
 	GetMappingList(context.Context, *GetMappingListRequest) (*GetMappingListResponse, error)
+	CreateKind(context.Context, *CreateKindRequest) (*CreateKindResponse, error)
+	GetKind(context.Context, *GetKindRequest) (*GetKindResponse, error)
+	ListKinds(context.Context, *ListKindsRequest) (*ListKindsResponse, error)
+	UpdateKind(context.Context, *UpdateKindRequest) (*UpdateKindResponse, error)
+	DeleteKind(context.Context, *DeleteKindRequest) (*DeleteKindResponse, error)
+	GetKindByName(context.Context, *GetKindByNameRequest) (*GetKindByNameResponse, error)
+	CreateAuditLog(context.Context, *CreateAuditLogRequest) (*CreateAuditLogResponse, error)
+	GetAuditLogList(context.Context, *GetAuditLogListRequest) (*GetAuditLogListResponse, error)
+	UpdateMappingDek(context.Context, *UpdateMappingDekRequest) (*UpdateMappingDekResponse, error)
+	UpdateMappingCrypto(context.Context, *UpdateMappingCryptoRequest) (*UpdateMappingCryptoResponse, error)
 	mustEmbedUnimplementedMappingServer()
 }
 
@@ -126,8 +269,41 @@ func (UnimplementedMappingServer) UpdateMapping(context.Context, *UpdateMappingR
 func (UnimplementedMappingServer) GetMapping(context.Context, *GetMappingRequest) (*GetMappingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMapping not implemented")
 }
+func (UnimplementedMappingServer) GetMappingByToken(context.Context, *GetMappingByTokenRequest) (*GetMappingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMappingByToken not implemented")
+}
 func (UnimplementedMappingServer) GetMappingList(context.Context, *GetMappingListRequest) (*GetMappingListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMappingList not implemented")
+}
+func (UnimplementedMappingServer) CreateKind(context.Context, *CreateKindRequest) (*CreateKindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateKind not implemented")
+}
+func (UnimplementedMappingServer) GetKind(context.Context, *GetKindRequest) (*GetKindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetKind not implemented")
+}
+func (UnimplementedMappingServer) ListKinds(context.Context, *ListKindsRequest) (*ListKindsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListKinds not implemented")
+}
+func (UnimplementedMappingServer) UpdateKind(context.Context, *UpdateKindRequest) (*UpdateKindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateKind not implemented")
+}
+func (UnimplementedMappingServer) DeleteKind(context.Context, *DeleteKindRequest) (*DeleteKindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteKind not implemented")
+}
+func (UnimplementedMappingServer) GetKindByName(context.Context, *GetKindByNameRequest) (*GetKindByNameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetKindByName not implemented")
+}
+func (UnimplementedMappingServer) CreateAuditLog(context.Context, *CreateAuditLogRequest) (*CreateAuditLogResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAuditLog not implemented")
+}
+func (UnimplementedMappingServer) GetAuditLogList(context.Context, *GetAuditLogListRequest) (*GetAuditLogListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuditLogList not implemented")
+}
+func (UnimplementedMappingServer) UpdateMappingDek(context.Context, *UpdateMappingDekRequest) (*UpdateMappingDekResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMappingDek not implemented")
+}
+func (UnimplementedMappingServer) UpdateMappingCrypto(context.Context, *UpdateMappingCryptoRequest) (*UpdateMappingCryptoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMappingCrypto not implemented")
 }
 func (UnimplementedMappingServer) mustEmbedUnimplementedMappingServer() {}
 func (UnimplementedMappingServer) testEmbeddedByValue()                 {}
@@ -222,6 +398,24 @@ func _Mapping_GetMapping_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Mapping_GetMappingByToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMappingByTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).GetMappingByToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_GetMappingByToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).GetMappingByToken(ctx, req.(*GetMappingByTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Mapping_GetMappingList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMappingListRequest)
 	if err := dec(in); err != nil {
@@ -236,6 +430,186 @@ func _Mapping_GetMappingList_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MappingServer).GetMappingList(ctx, req.(*GetMappingListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_CreateKind_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateKindRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).CreateKind(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_CreateKind_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).CreateKind(ctx, req.(*CreateKindRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_GetKind_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetKindRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).GetKind(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_GetKind_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).GetKind(ctx, req.(*GetKindRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_ListKinds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListKindsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).ListKinds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_ListKinds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).ListKinds(ctx, req.(*ListKindsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_UpdateKind_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateKindRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).UpdateKind(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_UpdateKind_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).UpdateKind(ctx, req.(*UpdateKindRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_DeleteKind_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteKindRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).DeleteKind(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_DeleteKind_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).DeleteKind(ctx, req.(*DeleteKindRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_GetKindByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetKindByNameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).GetKindByName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_GetKindByName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).GetKindByName(ctx, req.(*GetKindByNameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_CreateAuditLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAuditLogRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).CreateAuditLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_CreateAuditLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).CreateAuditLog(ctx, req.(*CreateAuditLogRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_GetAuditLogList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAuditLogListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).GetAuditLogList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_GetAuditLogList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).GetAuditLogList(ctx, req.(*GetAuditLogListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_UpdateMappingDek_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMappingDekRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).UpdateMappingDek(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_UpdateMappingDek_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).UpdateMappingDek(ctx, req.(*UpdateMappingDekRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mapping_UpdateMappingCrypto_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMappingCryptoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MappingServer).UpdateMappingCrypto(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Mapping_UpdateMappingCrypto_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MappingServer).UpdateMappingCrypto(ctx, req.(*UpdateMappingCryptoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -264,8 +638,52 @@ var Mapping_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Mapping_GetMapping_Handler,
 		},
 		{
+			MethodName: "GetMappingByToken",
+			Handler:    _Mapping_GetMappingByToken_Handler,
+		},
+		{
 			MethodName: "GetMappingList",
 			Handler:    _Mapping_GetMappingList_Handler,
+		},
+		{
+			MethodName: "CreateKind",
+			Handler:    _Mapping_CreateKind_Handler,
+		},
+		{
+			MethodName: "GetKind",
+			Handler:    _Mapping_GetKind_Handler,
+		},
+		{
+			MethodName: "ListKinds",
+			Handler:    _Mapping_ListKinds_Handler,
+		},
+		{
+			MethodName: "UpdateKind",
+			Handler:    _Mapping_UpdateKind_Handler,
+		},
+		{
+			MethodName: "DeleteKind",
+			Handler:    _Mapping_DeleteKind_Handler,
+		},
+		{
+			MethodName: "GetKindByName",
+			Handler:    _Mapping_GetKindByName_Handler,
+		},
+		{
+			MethodName: "CreateAuditLog",
+			Handler:    _Mapping_CreateAuditLog_Handler,
+		},
+		{
+			MethodName: "GetAuditLogList",
+			Handler:    _Mapping_GetAuditLogList_Handler,
+		},
+		{
+			MethodName: "UpdateMappingDek",
+			Handler:    _Mapping_UpdateMappingDek_Handler,
+		},
+		{
+			MethodName: "UpdateMappingCrypto",
+			Handler:    _Mapping_UpdateMappingCrypto_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

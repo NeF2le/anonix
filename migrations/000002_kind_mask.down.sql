@@ -1,0 +1,1 @@
+ALTER TABLE mapping.kinds DROP COLUMN IF EXISTS mask;

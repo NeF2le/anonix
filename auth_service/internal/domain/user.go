@@ -1,8 +1,9 @@
 package domain
 
 type User struct {
-	ID       string
-	Login    string
-	PassHash []byte
-	RoleId   int
+	ID             string
+	Login          string
+	PassHash       []byte
+	Roles          []*Role
+	ClearanceLevel int
 }

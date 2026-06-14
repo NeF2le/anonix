@@ -18,7 +18,7 @@ type mappingCache struct {
 	TokenTtl      time.Duration `json:"token_ttl,omitempty"`
 	CreatedAt     time.Time     `json:"created_at"`
 	Deterministic bool          `json:"deterministic"`
-	Reversible    bool          `json:"reversible"`
+	Kind          *domain.Kind  `json:"kind"`
 }
 
 type RedisAdapter struct {
@@ -39,7 +39,7 @@ func (r *RedisAdapter) SaveMapping(ctx context.Context, mapping *domain.Mapping,
 		TokenTtl:      mapping.TokenTtl,
 		CreatedAt:     mapping.CreatedAt,
 		Deterministic: mapping.Deterministic,
-		Reversible:    mapping.Reversible,
+		Kind:          mapping.Kind,
 	}
 	payload, err := json.Marshal(cacheObj)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"github.com/NeF2le/anonix/common/logger"
 	"github.com/NeF2le/anonix/common/tls_helpers"
 	"github.com/NeF2le/anonix/gateway/internal/config"
+	"github.com/NeF2le/anonix/gateway/internal/domain"
 	"github.com/NeF2le/anonix/gateway/internal/handlers/http_handlers"
 	"github.com/NeF2le/anonix/gateway/internal/handlers/middlewares"
 	"github.com/NeF2le/anonix/gateway/internal/ports/adapters/auth_service_adapters"
@@ -95,6 +96,7 @@ func main() {
 	tokenizerServiceHandler := http_handlers.NewTokenizerServiceHandler(tokenizerService, mappingService)
 	mappingServiceHandler := http_handlers.NewMappingServiceHandler(mappingService)
 	authServiceHandler := http_handlers.NewAuthServiceHandler(authService)
+	keyRotationHandler := http_handlers.NewKeyRotationHandler(tokenizerService, mappingService)
 
 	authMiddleware := middlewares.NewAuthMiddleware(
 		mainConfig.JWTSecret,
@@ -102,6 +104,7 @@ func main() {
 		mainConfig.AccessTokenCookieTTL,
 		mainConfig.RefreshTokenCookieTTL,
 	)
+	rbacMiddleware := middlewares.NewRBACMiddleware()
 
 	app := echo.New()
 	app.GET("/swagger/*", echoSwagger.WrapHandler)
@@ -134,19 +137,39 @@ func main() {
 	v1Group.Use(middlewares.LoggingMiddleware)
 
 	tokenizerGroup := v1Group.Group("/tokenizer")
-	tokenizerGroup.Use(authMiddleware.CheckAuth)
+	tokenizerGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin, domain.RoleSpecialist))
 	{
 		tokenizerGroup.POST("/tokenize", tokenizerServiceHandler.Tokenize)
 		tokenizerGroup.POST("/detokenize", tokenizerServiceHandler.Detokenize)
 	}
 
-	mappingGroup := v1Group.Group("/mappings")
-	mappingGroup.Use(authMiddleware.CheckAuth)
+	mappingReadGroup := v1Group.Group("/mappings")
+	mappingReadGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin, domain.RoleSpecialist, domain.RoleAuditor))
 	{
-		mappingGroup.GET("/:id", mappingServiceHandler.GetMapping)
-		mappingGroup.GET("/", mappingServiceHandler.GetMappingList)
-		mappingGroup.DELETE("/:id", mappingServiceHandler.DeleteMapping)
-		mappingGroup.PATCH("/:id", mappingServiceHandler.UpdateMapping)
+		mappingReadGroup.GET("/:id", mappingServiceHandler.GetMapping)
+		mappingReadGroup.GET("/", mappingServiceHandler.GetMappingList)
+	}
+
+	mappingWriteGroup := v1Group.Group("/mappings")
+	mappingWriteGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin, domain.RoleSpecialist))
+	{
+		mappingWriteGroup.DELETE("/:id", mappingServiceHandler.DeleteMapping)
+		mappingWriteGroup.PATCH("/:id", mappingServiceHandler.UpdateMapping)
+	}
+
+	kindReadGroup := v1Group.Group("/kinds")
+	kindReadGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin, domain.RoleSpecialist, domain.RoleAuditor))
+	{
+		kindReadGroup.GET("/:id", mappingServiceHandler.GetKind)
+		kindReadGroup.GET("/", mappingServiceHandler.GetKindList)
+	}
+
+	kindWriteGroup := v1Group.Group("/kinds")
+	kindWriteGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin))
+	{
+		kindWriteGroup.POST("/", mappingServiceHandler.CreateKind)
+		kindWriteGroup.PATCH("/:id", mappingServiceHandler.UpdateKind)
+		kindWriteGroup.DELETE("/:id", mappingServiceHandler.DeleteKind)
 	}
 
 	authGroup := v1Group.Group("/auth")
@@ -154,11 +177,38 @@ func main() {
 		authGroup.POST("/signIn", authServiceHandler.Login)
 		authGroup.POST("/signUp", authServiceHandler.Register)
 		authGroup.POST("/refresh", authServiceHandler.Refresh)
+		authGroup.GET("/me", authServiceHandler.GetMe, authMiddleware.CheckAuth)
 	}
 
 	userGroup := v1Group.Group("/user")
+	userGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin))
 	{
 		userGroup.POST("/isAdmin", authServiceHandler.IsAdmin)
+		userGroup.GET("/list", authServiceHandler.GetUsers)
+		userGroup.DELETE("/delete", authServiceHandler.DeleteUser)
+		userGroup.GET("/roles", authServiceHandler.GetUserRoles)
+		userGroup.POST("/assignRole", authServiceHandler.AssignRole)
+		userGroup.DELETE("/removeRole", authServiceHandler.RemoveRole)
+		userGroup.PATCH("/clearance", authServiceHandler.UpdateClearance)
+	}
+
+	roleGroup := v1Group.Group("/role")
+	roleGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin))
+	{
+		roleGroup.GET("/list", authServiceHandler.GetRolesList)
+	}
+
+	auditGroup := v1Group.Group("/audit")
+	auditGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin, domain.RoleAuditor))
+	{
+		auditGroup.GET("/", mappingServiceHandler.GetAuditLogList)
+	}
+
+	keysGroup := v1Group.Group("/admin/keys")
+	keysGroup.Use(authMiddleware.CheckAuth, rbacMiddleware.CheckRole(domain.RoleAdmin))
+	{
+		keysGroup.POST("/rotate-master", keyRotationHandler.RotateMasterKey)
+		keysGroup.POST("/rotate-deks", keyRotationHandler.RotateAllDeks)
 	}
 
 	if tlsCfg.Enabled {

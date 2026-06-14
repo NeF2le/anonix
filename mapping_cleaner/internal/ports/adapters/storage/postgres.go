@@ -19,6 +19,8 @@ func (p *PostgresAdapter) DeleteExpiredMappings(ctx context.Context) ([]uuid.UUI
 	query := `
 		DELETE FROM mapping.mappings
 		WHERE (created_at + (token_ttl / 1000000000 * interval '1 second')) < now()
+			AND token_ttl IS NOT NULL 
+			AND token_ttl != 0
 		RETURNING id`
 
 	rows, err := p.pool.Query(ctx, query)

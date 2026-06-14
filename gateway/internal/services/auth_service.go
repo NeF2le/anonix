@@ -101,3 +101,136 @@ func (a *AuthService) IsAdmin(ctx context.Context, req *auth_service.IsAdminRequ
 
 	return <-resultChan, nil
 }
+
+func (a *AuthService) GetUserRoles(ctx context.Context, req *auth_service.GetUserRolesRequest) (*auth_service.GetUserRolesResponse, error) {
+	resultChan := make(chan *auth_service.GetUserRolesResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := a.AuthServiceRepo.GetUserRoles(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, a.MaxRetries, a.BaseDelay)
+
+	if err != nil {
+		return nil, fmt.Errorf("couldn't call GetUserRoles: %w", err)
+	}
+
+	return <-resultChan, nil
+}
+
+func (a *AuthService) GetUsers(ctx context.Context, req *auth_service.GetUsersRequest) (*auth_service.GetUsersResponse, error) {
+	resultChan := make(chan *auth_service.GetUsersResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := a.AuthServiceRepo.GetUsers(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, a.MaxRetries, a.BaseDelay)
+
+	if err != nil {
+		return nil, fmt.Errorf("couldn't call GetUsers: %w", err)
+	}
+
+	return <-resultChan, nil
+}
+
+func (a *AuthService) DeleteUser(ctx context.Context, req *auth_service.DeleteUserRequest) (*auth_service.DeleteUserResponse, error) {
+	resultChan := make(chan *auth_service.DeleteUserResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := a.AuthServiceRepo.DeleteUser(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, a.MaxRetries, a.BaseDelay)
+
+	if err != nil {
+		return nil, fmt.Errorf("couldn't call DeleteUser: %w", err)
+	}
+
+	return <-resultChan, nil
+}
+
+func (a *AuthService) AssignRole(ctx context.Context, req *auth_service.AssignRoleRequest) (*auth_service.AssignRoleResponse, error) {
+	resultChan := make(chan *auth_service.AssignRoleResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := a.AuthServiceRepo.AssignRole(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, a.MaxRetries, a.BaseDelay)
+
+	if err != nil {
+		return nil, fmt.Errorf("couldn't call AssignRole: %w", err)
+	}
+
+	return <-resultChan, nil
+}
+
+func (a *AuthService) RemoveRole(ctx context.Context, req *auth_service.RemoveRoleRequest) (*auth_service.RemoveRoleResponse, error) {
+	resultChan := make(chan *auth_service.RemoveRoleResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := a.AuthServiceRepo.RemoveRole(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, a.MaxRetries, a.BaseDelay)
+
+	if err != nil {
+		return nil, fmt.Errorf("couldn't call RemoveRole: %w", err)
+	}
+
+	return <-resultChan, nil
+}
+
+func (a *AuthService) UpdateClearanceLevel(ctx context.Context, req *auth_service.UpdateClearanceLevelRequest) (*auth_service.UpdateClearanceLevelResponse, error) {
+	resultChan := make(chan *auth_service.UpdateClearanceLevelResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := a.AuthServiceRepo.UpdateClearanceLevel(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, a.MaxRetries, a.BaseDelay)
+
+	if err != nil {
+		return nil, fmt.Errorf("couldn't call UpdateClearanceLevel: %w", err)
+	}
+
+	return <-resultChan, nil
+}
+
+func (a *AuthService) GetRolesList(ctx context.Context, req *auth_service.GetRolesListRequest) (*auth_service.GetRolesListResponse, error) {
+	resultChan := make(chan *auth_service.GetRolesListResponse, 1)
+
+	err := callers.Retry(func() error {
+		resp, err := a.AuthServiceRepo.GetRolesList(ctx, req)
+		if err != nil {
+			return err
+		}
+		resultChan <- resp
+		return nil
+	}, a.MaxRetries, a.BaseDelay)
+
+	if err != nil {
+		return nil, fmt.Errorf("couldn't call GetRolesList: %w", err)
+	}
+
+	return <-resultChan, nil
+}

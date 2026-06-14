@@ -12,7 +12,27 @@ service Mapping {
   rpc DeleteMapping (DeleteMappingRequest) returns (DeleteMappingResponse);
   rpc UpdateMapping (UpdateMappingRequest) returns (UpdateMappingResponse);
   rpc GetMapping (GetMappingRequest) returns (GetMappingResponse);
+  rpc GetMappingByToken (GetMappingByTokenRequest) returns (GetMappingResponse);
   rpc GetMappingList (GetMappingListRequest) returns (GetMappingListResponse);
+  rpc CreateKind(CreateKindRequest) returns (CreateKindResponse);
+  rpc GetKind(GetKindRequest) returns (GetKindResponse);
+  rpc ListKinds(ListKindsRequest) returns (ListKindsResponse);
+  rpc UpdateKind(UpdateKindRequest) returns (UpdateKindResponse);
+  rpc DeleteKind(DeleteKindRequest) returns (DeleteKindResponse);
+  rpc GetKindByName(GetKindByNameRequest) returns (GetKindByNameResponse);
+  rpc CreateAuditLog(CreateAuditLogRequest) returns (CreateAuditLogResponse);
+  rpc GetAuditLogList(GetAuditLogListRequest) returns (GetAuditLogListResponse);
+  rpc UpdateMappingDek(UpdateMappingDekRequest) returns (UpdateMappingDekResponse);
+  rpc UpdateMappingCrypto(UpdateMappingCryptoRequest) returns (UpdateMappingCryptoResponse);
+}
+
+message Kind {
+  int32 id = 1;
+  string name = 2;
+  string russian_name = 3;
+  int32 access_level = 4;
+  string mask = 5;
+  string short_name = 6;
 }
 
 message MappingModel {
@@ -22,7 +42,9 @@ message MappingModel {
   google.protobuf.Duration token_ttl = 4;
   google.protobuf.Timestamp created_at = 5;
   bool deterministic = 6;
-  bool reversible = 7;
+  Kind kind = 7;
+  string token = 8;
+  string algo_name = 9;
 }
 
 message CreateMappingRequest {
@@ -30,7 +52,13 @@ message CreateMappingRequest {
   bytes dek_wrapped = 2;
   google.protobuf.Duration token_ttl = 3;
   bool deterministic = 4;
-  bool reversible = 5;
+  Kind kind = 5;
+  string token = 6;
+  string algo_name = 7;
+}
+
+message GetMappingByTokenRequest {
+  string token = 1;
 }
 
 message CreateMappingResponse {
@@ -65,3 +93,100 @@ message GetMappingListRequest {}
 message GetMappingListResponse {
   repeated MappingModel mappingModels = 1;
 }
+
+message CreateKindRequest {
+  string name = 1;
+  string russian_name = 2;
+  int32 access_level = 3;
+  string mask = 4;
+  string short_name = 5;
+}
+
+message CreateKindResponse {
+  Kind kind = 1;
+}
+
+message GetKindRequest {
+  int32 id = 1;
+}
+
+message GetKindResponse {
+  Kind kind = 1;
+}
+
+message ListKindsRequest {
+}
+
+message ListKindsResponse {
+  repeated Kind kinds = 1;
+}
+
+message UpdateKindRequest {
+  int32 id = 1;
+  string name = 2;
+  string russian_name = 3;
+  int32 access_level = 4;
+  string mask = 5;
+  string short_name = 6;
+}
+
+message UpdateKindResponse {
+  Kind kind = 1;
+}
+
+message DeleteKindRequest {
+  int32 id = 1;
+}
+
+message DeleteKindResponse {
+}
+
+message GetKindByNameRequest {
+  string name = 1;
+}
+
+message GetKindByNameResponse {
+  Kind kind = 1;
+}
+
+message AuditLogEntry {
+  string id = 1;
+  string user_id = 2;
+  string action = 3;
+  string token = 4;
+  Kind kind = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message CreateAuditLogRequest {
+  string user_id = 1;
+  string action = 2;
+  string token = 3;
+  int32 kind_id = 4;
+}
+
+message CreateAuditLogResponse {
+  AuditLogEntry entry = 1;
+}
+
+message GetAuditLogListRequest {}
+
+message GetAuditLogListResponse {
+  repeated AuditLogEntry entries = 1;
+}
+
+message UpdateMappingDekRequest {
+  string id = 1;
+  bytes dek_wrapped = 2;
+}
+
+message UpdateMappingDekResponse {}
+
+message UpdateMappingCryptoRequest {
+  string id = 1;
+  bytes dek_wrapped = 2;
+  bytes cipher_text = 3;
+  string algo_name = 4;
+}
+
+message UpdateMappingCryptoResponse {}

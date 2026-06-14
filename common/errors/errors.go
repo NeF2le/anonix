@@ -19,4 +19,8 @@ var (
 	ErrPasswordWeak         = errors.New("password must contain at least one letter and one number")
 	ErrUnauthorized         = errors.New("unauthorized")
 	ErrInvalidAccessToken   = errors.New("invalid access token")
+	ErrNotFound             = errors.New("not found")
+	ErrKindAlreadyExists    = errors.New("kind already exists")
+	ErrKindNotFound         = errors.New("kind not found")
+	ErrKindInUse            = errors.New("kind is in use")
 )

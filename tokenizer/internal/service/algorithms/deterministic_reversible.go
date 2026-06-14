@@ -3,12 +3,9 @@ package algorithms
 import (
 	"context"
 	"crypto/cipher"
-	"encoding/base64"
 	"fmt"
-	"github.com/NeF2le/anonix/common/logger"
 	"github.com/NeF2le/anonix/mapping/internal/domain"
 	"github.com/miscreant/miscreant.go"
-	"log/slog"
 )
 
 type DeterministicReversible struct {
@@ -18,8 +15,6 @@ type DeterministicReversible struct {
 func NewDeterministicReversible(dek []byte) (*DeterministicReversible, error) {
 	var aead cipher.AEAD
 	var err error
-	ctx := context.Background()
-	logger.GetLoggerFromCtx(ctx).Debug(ctx, "Creating AEAD with DEK", slog.String("dek", base64.StdEncoding.EncodeToString(dek)))
 
 	aead, err = miscreant.NewAEAD("AES-SIV", dek, 0)
 	if err != nil {

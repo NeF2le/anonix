@@ -76,3 +76,63 @@ func (t *TokenizerServiceAdapterGRPC) Detokenize(ctx context.Context, req *token
 
 	return resp, nil
 }
+
+func (t *TokenizerServiceAdapterGRPC) RotateMasterKey(ctx context.Context, req *tokenizer.RotateMasterKeyRequest) (
+	*tokenizer.RotateMasterKeyResponse, error) {
+	conn, err := grpc.NewClient(t.address, t.opts...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new gRPC connection for tokenizer service: %w", err)
+	}
+	defer conn.Close()
+
+	dctx, cancel := context.WithTimeout(ctx, t.dialTimeout)
+	defer cancel()
+
+	client := tokenizer.NewTokenizerClient(conn)
+	resp, err := client.RotateMasterKey(dctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send gRPC request to tokenizer service: %w", err)
+	}
+
+	return resp, nil
+}
+
+func (t *TokenizerServiceAdapterGRPC) RewrapDEK(ctx context.Context, req *tokenizer.RewrapDEKRequest) (
+	*tokenizer.RewrapDEKResponse, error) {
+	conn, err := grpc.NewClient(t.address, t.opts...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new gRPC connection for tokenizer service: %w", err)
+	}
+	defer conn.Close()
+
+	dctx, cancel := context.WithTimeout(ctx, t.dialTimeout)
+	defer cancel()
+
+	client := tokenizer.NewTokenizerClient(conn)
+	resp, err := client.RewrapDEK(dctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send gRPC request to tokenizer service: %w", err)
+	}
+
+	return resp, nil
+}
+
+func (t *TokenizerServiceAdapterGRPC) RotateDEK(ctx context.Context, req *tokenizer.RotateDEKRequest) (
+	*tokenizer.RotateDEKResponse, error) {
+	conn, err := grpc.NewClient(t.address, t.opts...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new gRPC connection for tokenizer service: %w", err)
+	}
+	defer conn.Close()
+
+	dctx, cancel := context.WithTimeout(ctx, t.dialTimeout)
+	defer cancel()
+
+	client := tokenizer.NewTokenizerClient(conn)
+	resp, err := client.RotateDEK(dctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send gRPC request to tokenizer service: %w", err)
+	}
+
+	return resp, nil
+}

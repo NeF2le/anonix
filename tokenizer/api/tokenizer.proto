@@ -7,28 +7,58 @@ option go_package = "common/gen/tokenizer";
 service Tokenizer {
   rpc Tokenize (TokenizeRequest) returns (TokenizeResponse);
   rpc Detokenize (DetokenizeRequest) returns (DetokenizeResponse);
+  rpc RotateMasterKey (RotateMasterKeyRequest) returns (RotateMasterKeyResponse);
+  rpc RewrapDEK (RewrapDEKRequest) returns (RewrapDEKResponse);
+  rpc RotateDEK (RotateDEKRequest) returns (RotateDEKResponse);
 }
 
 message TokenizeRequest {
   bytes plaintext = 1;
   bool deterministic = 2;
-  bool reversible = 3;
+  bool pseudonymize = 3;
+  string algorithm = 4;
 }
 
 message TokenizeResponse {
-  string token = 1;
+  bytes token_suffix = 1;
   bytes dek_wrapped = 2;
   bytes cipher_text = 3;
   bool deterministic = 4;
-  bool reversible = 5;
+  string algo_name = 5;
 }
 
 message DetokenizeRequest {
   bytes dek_wrapped = 1;
   bytes cipher_text = 2;
   bool deterministic = 3;
+  string algo_name = 4;
 }
 
 message DetokenizeResponse {
   bytes plaintext = 1;
+}
+
+message RotateMasterKeyRequest {}
+
+message RotateMasterKeyResponse {}
+
+message RewrapDEKRequest {
+  bytes dek_wrapped = 1;
+}
+
+message RewrapDEKResponse {
+  bytes dek_wrapped = 1;
+}
+
+message RotateDEKRequest {
+  bytes dek_wrapped = 1;
+  bytes cipher_text = 2;
+  bool deterministic = 3;
+  string algo_name = 4;
+}
+
+message RotateDEKResponse {
+  bytes dek_wrapped = 1;
+  bytes cipher_text = 2;
+  string algo_name = 3;
 }
